@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
         utm_campaign: utmCampaign,
         category_id: categoryId,
         user_id: userId,
-        status: "novo",
+        status: "new",
       })
       .select("id")
       .single();
