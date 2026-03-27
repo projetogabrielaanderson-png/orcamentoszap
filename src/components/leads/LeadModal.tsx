@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lead, STATUS_CONFIG, LeadStatus } from '@/types/crm';
 import { useCRM } from '@/contexts/CRMContext';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { supabase } from '@/integrations/supabase/client';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -15,20 +16,54 @@ interface LeadModalProps {
   onClose: () => void;
 }
 
+interface MessageTemplate {
+  id: string;
+  name: string;
+  content: string;
+  is_default: boolean;
+}
+
+function applyTemplate(content: string, pro: { name: string }, lead: Lead, categoryName: string) {
+  return content
+    .replace(/\{\{profissional\}\}/g, pro.name)
+    .replace(/\{\{lead_nome\}\}/g, lead.name)
+    .replace(/\{\{lead_telefone\}\}/g, lead.phone)
+    .replace(/\{\{lead_mensagem\}\}/g, lead.message)
+    .replace(/\{\{categoria\}\}/g, categoryName);
+}
+
+const FALLBACK_TEMPLATE = `Olá {{profissional}}! Temos um novo lead para você:\n\n◆ Nome: {{lead_nome}}\n◆ Telefone: {{lead_telefone}}\n◆ Mensagem: {{lead_mensagem}}\n◆ Categoria: {{categoria}}`;
+
 export function LeadModal({ lead, onClose }: LeadModalProps) {
-  const { getCategoryName, professionals, categories, updateLeadStatus, assignProfessional } = useCRM();
+  const { getCategoryName, professionals, updateLeadStatus, assignProfessional } = useCRM();
   const [showProfessionalSelect, setShowProfessionalSelect] = useState(false);
+  const [templates, setTemplates] = useState<MessageTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
 
   const relevantPros = professionals.filter(p => p.category_id === lead.category_id);
 
+  useEffect(() => {
+    supabase.from('message_templates').select('id,name,content,is_default')
+      .order('is_default', { ascending: false })
+      .order('name')
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const tpls = data as unknown as MessageTemplate[];
+          setTemplates(tpls);
+          const def = tpls.find(t => t.is_default) || tpls[0];
+          setSelectedTemplateId(def.id);
+        }
+      });
+  }, []);
+
+  const getMessageContent = (pro: { name: string }) => {
+    const tpl = templates.find(t => t.id === selectedTemplateId);
+    const content = tpl?.content || FALLBACK_TEMPLATE;
+    return applyTemplate(content, pro, lead, getCategoryName(lead.category_id));
+  };
+
   const handleSendWhatsApp = (pro: typeof professionals[0]) => {
-    const msg = encodeURIComponent(
-      `Olá ${pro.name}! Temos um novo lead para você:\n\n` +
-      `👤 Nome: ${lead.name}\n` +
-      `📱 Telefone: ${lead.phone}\n` +
-      `💬 Mensagem: ${lead.message}\n` +
-      `📂 Categoria: ${getCategoryName(lead.category_id)}`
-    );
+    const msg = encodeURIComponent(getMessageContent(pro));
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
     const url = isMobile
       ? `https://wa.me/${pro.whatsapp}?text=${msg}`
@@ -49,6 +84,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl">{lead.name}</DialogTitle>
+          <DialogDescription>Detalhes e ações do lead</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -111,6 +147,23 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
               </Button>
             ) : (
               <div className="space-y-2">
+                {templates.length > 0 && (
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground">Template da mensagem</label>
+                    <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+                      <SelectTrigger className="mt-1 h-8 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {templates.map(t => (
+                          <SelectItem key={t.id} value={t.id} className="text-xs">
+                            {t.name} {t.is_default && '⭐'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <p className="text-sm font-medium">Selecione o profissional:</p>
                 {relevantPros.length === 0 ? (
                   <>
