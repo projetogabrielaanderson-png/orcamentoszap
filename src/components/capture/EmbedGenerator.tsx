@@ -11,7 +11,8 @@ export function EmbedGenerator() {
   const [siteUrl, setSiteUrl] = useState('https://meusite.com');
   const [copied, setCopied] = useState<'embed' | 'link' | null>(null);
 
-  const formEndpoint = `https://orcamentoszap.lovable.app/api/lead`;
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const formEndpoint = `${supabaseUrl}/functions/v1/receive-lead`;
 
   const embedCode = `<!-- LeadFlow - Formulário de Captação -->
 <div id="leadflow-form" style="max-width:480px;margin:0 auto;font-family:system-ui,sans-serif">
