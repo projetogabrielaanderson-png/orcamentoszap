@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Moon, Sun, Bell } from 'lucide-react';
+import { Search, Moon, Sun, Bell, LogOut } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,7 +7,7 @@ import { useCRM } from '@/contexts/CRMContext';
 
 export function AppHeader() {
   const [dark, setDark] = useState(false);
-  const { leads } = useCRM();
+  const { leads, signOut, user } = useCRM();
   const newLeadsCount = leads.filter(l => l.status === 'new').length;
 
   useEffect(() => {
@@ -41,8 +41,11 @@ export function AppHeader() {
         >
           {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
+        <Button variant="ghost" size="icon" onClick={signOut} title="Sair">
+          <LogOut className="h-5 w-5" />
+        </Button>
         <div className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-          U
+          {user?.email?.[0]?.toUpperCase() || 'U'}
         </div>
       </div>
     </header>
