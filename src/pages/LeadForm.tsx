@@ -18,10 +18,28 @@ const LeadFormPage = () => {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const endpoint = `${supabaseUrl}/functions/v1/receive-lead`;
 
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhone(formatPhone(e.target.value));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !phone.trim()) {
-      toast.error('Preencha nome e telefone.');
+    const trimmedName = name.trim();
+    const phoneDigits = phone.replace(/\D/g, '');
+
+    if (!trimmedName || trimmedName.length < 2) {
+      toast.error('Nome deve ter pelo menos 2 caracteres.');
+      return;
+    }
+    if (phoneDigits.length < 10 || phoneDigits.length > 11) {
+      toast.error('Telefone inválido. Use DDD + número (ex: 44999990000).');
       return;
     }
     setLoading(true);
@@ -30,8 +48,8 @@ const LeadFormPage = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
+          name: trimmedName,
+          phone: phoneDigits,
           message: message.trim(),
           origin_url: origin,
           user_id: searchParams.get('owner') || '',
@@ -41,10 +59,13 @@ const LeadFormPage = () => {
           utm_campaign: searchParams.get('utm_campaign') || '',
         }),
       });
-      if (!res.ok) throw new Error('Erro ao enviar');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Erro ao enviar');
+      }
       setSubmitted(true);
-    } catch {
-      toast.error('Erro ao enviar. Tente novamente.');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao enviar. Tente novamente.');
     } finally {
       setLoading(false);
     }
