@@ -10,6 +10,7 @@ import ProfessionalsPage from "./pages/Professionals.tsx";
 import CapturePage from "./pages/Capture.tsx";
 import AnalyticsPage from "./pages/Analytics.tsx";
 import AuthPage from "./pages/Auth.tsx";
+import LeadFormPage from "./pages/LeadForm.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
