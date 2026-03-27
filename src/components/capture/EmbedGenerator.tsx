@@ -17,7 +17,7 @@ export function EmbedGenerator() {
 
   const embedCode = `<!-- LeadFlow - Formulário de Captação -->
 <div id="leadflow-form" style="max-width:480px;margin:0 auto;font-family:system-ui,sans-serif">
-  <form action="${formEndpoint}" method="POST" style="display:flex;flex-direction:column;gap:12px;padding:24px;border:1px solid #e2e8f0;border-radius:12px;background:#fff">
+  <form action="${edgeEndpoint}" method="POST" style="display:flex;flex-direction:column;gap:12px;padding:24px;border:1px solid #e2e8f0;border-radius:12px;background:#fff">
     <h3 style="margin:0;font-size:18px;font-weight:600;color:#1e293b">Solicite um Orçamento</h3>
     <input name="name" placeholder="Seu nome" required style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px" />
     <input name="phone" placeholder="WhatsApp (ex: 11999990000)" required style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px" />
@@ -27,7 +27,7 @@ export function EmbedGenerator() {
   </form>
 </div>`;
 
-  const directLink = `${formEndpoint}?origin=${encodeURIComponent(siteUrl)}`;
+  const directLink = `${formPageUrl}?origin=${encodeURIComponent(siteUrl)}`;
 
   const handleCopy = (text: string, type: 'embed' | 'link') => {
     navigator.clipboard.writeText(text);
