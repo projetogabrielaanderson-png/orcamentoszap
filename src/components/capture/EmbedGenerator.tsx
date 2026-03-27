@@ -16,6 +16,7 @@ export function EmbedGenerator() {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const edgeEndpoint = `${supabaseUrl}/functions/v1/receive-lead`;
   const formPageUrl = `https://orcamentoszap.lovable.app/form`;
+  const ownerId = user?.id ?? '';
 
   const embedCode = `<!-- LeadFlow - Formulário de Captação -->
 <div id="leadflow-form" style="max-width:480px;margin:0 auto;font-family:system-ui,sans-serif">
@@ -25,11 +26,12 @@ export function EmbedGenerator() {
     <input name="phone" placeholder="WhatsApp (ex: 11999990000)" required style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px" />
     <textarea name="message" placeholder="Descreva o que precisa..." rows="3" required style="padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;resize:vertical"></textarea>
     <input type="hidden" name="origin_url" value="${siteUrl}" />
+    <input type="hidden" name="user_id" value="${ownerId}" />
     <button type="submit" style="padding:12px;background:#3b82f6;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Enviar</button>
   </form>
 </div>`;
 
-  const directLink = `${formPageUrl}?origin=${encodeURIComponent(siteUrl)}`;
+  const directLink = `${formPageUrl}?origin=${encodeURIComponent(siteUrl)}&owner=${encodeURIComponent(ownerId)}`;
 
   const handleCopy = (text: string, type: 'embed' | 'link') => {
     navigator.clipboard.writeText(text);
