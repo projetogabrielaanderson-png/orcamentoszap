@@ -101,9 +101,9 @@ const LeadFormPage = () => {
           </div>
           <div>
             <Input
-              placeholder="WhatsApp (ex: 11999990000)"
+              placeholder="WhatsApp (ex: (44) 99999-0000)"
               value={phone}
-              onChange={e => setPhone(e.target.value)}
+              onChange={handlePhoneChange}
               required
               className="h-12"
             />
