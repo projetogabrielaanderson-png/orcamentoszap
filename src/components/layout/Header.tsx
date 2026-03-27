@@ -7,7 +7,7 @@ import { useCRM } from '@/contexts/CRMContext';
 
 export function AppHeader() {
   const [dark, setDark] = useState(false);
-  const { leads } = useCRM();
+  const { leads, signOut, user } = useCRM();
   const newLeadsCount = leads.filter(l => l.status === 'new').length;
 
   useEffect(() => {
