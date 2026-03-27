@@ -41,8 +41,11 @@ export function AppHeader() {
         >
           {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
         </Button>
+        <Button variant="ghost" size="icon" onClick={signOut} title="Sair">
+          <LogOut className="h-5 w-5" />
+        </Button>
         <div className="ml-2 flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
-          U
+          {user?.email?.[0]?.toUpperCase() || 'U'}
         </div>
       </div>
     </header>
