@@ -29,7 +29,11 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
       `💬 Mensagem: ${lead.message}\n` +
       `📂 Categoria: ${getCategoryName(lead.category_id)}`
     );
-    window.open(`https://wa.me/${pro.whatsapp}?text=${msg}`, '_blank');
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    const url = isMobile
+      ? `https://wa.me/${pro.whatsapp}?text=${msg}`
+      : `https://web.whatsapp.com/send?phone=${pro.whatsapp}&text=${msg}`;
+    window.open(url, '_blank');
     assignProfessional(lead.id, pro.id);
     toast.success(`Lead encaminhado para ${pro.name}!`);
     onClose();
