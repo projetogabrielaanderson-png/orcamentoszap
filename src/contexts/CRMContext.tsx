@@ -1,129 +1,142 @@
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { Lead, Professional, Category, LeadStatus } from '@/types/crm';
-import { mockLeads, mockProfessionals, mockCategories } from '@/data/mockData';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import type { User } from '@supabase/supabase-js';
 
-interface CRMState {
+interface CRMContextType {
   leads: Lead[];
   professionals: Professional[];
   categories: Category[];
-}
-
-type CRMAction =
-  | { type: 'SET_LEADS'; payload: Lead[] }
-  | { type: 'UPDATE_LEAD'; payload: Partial<Lead> & { id: string } }
-  | { type: 'ADD_LEAD'; payload: Lead }
-  | { type: 'SET_PROFESSIONALS'; payload: Professional[] }
-  | { type: 'ADD_PROFESSIONAL'; payload: Professional }
-  | { type: 'DELETE_PROFESSIONAL'; payload: string }
-  | { type: 'SET_CATEGORIES'; payload: Category[] };
-
-interface CRMContextType extends CRMState {
-  dispatch: React.Dispatch<CRMAction>;
+  user: User | null;
+  loading: boolean;
   updateLeadStatus: (id: string, status: LeadStatus) => void;
   assignProfessional: (leadId: string, professionalId: string) => void;
-  addProfessional: (pro: Omit<Professional, 'id' | 'leads_count' | 'user_id' | 'created_at'>) => void;
+  addProfessional: (pro: { name: string; category_id: string; whatsapp: string }) => void;
   deleteProfessional: (id: string) => void;
   getCategoryName: (id: string) => string;
   getCategoryColor: (id: string) => string;
   getProfessionalName: (id: string) => string;
-}
-
-function crmReducer(state: CRMState, action: CRMAction): CRMState {
-  switch (action.type) {
-    case 'SET_LEADS':
-      return { ...state, leads: action.payload };
-    case 'UPDATE_LEAD':
-      return {
-        ...state,
-        leads: state.leads.map(l =>
-          l.id === action.payload.id ? { ...l, ...action.payload, updated_at: new Date().toISOString() } : l
-        ),
-      };
-    case 'ADD_LEAD':
-      return { ...state, leads: [action.payload, ...state.leads] };
-    case 'SET_PROFESSIONALS':
-      return { ...state, professionals: action.payload };
-    case 'ADD_PROFESSIONAL':
-      return { ...state, professionals: [...state.professionals, action.payload] };
-    case 'DELETE_PROFESSIONAL':
-      return { ...state, professionals: state.professionals.filter(p => p.id !== action.payload) };
-    case 'SET_CATEGORIES':
-      return { ...state, categories: action.payload };
-    default:
-      return state;
-  }
+  signOut: () => void;
+  refreshLeads: () => void;
 }
 
 const CRMContext = createContext<CRMContextType | null>(null);
 
 export function CRMProvider({ children }: { children: React.ReactNode }) {
-  const [state, dispatch] = useReducer(crmReducer, {
-    leads: [],
-    professionals: [],
-    categories: [],
-  });
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [professionals, setProfessionals] = useState<Professional[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  // Auth listener
   useEffect(() => {
-    // Load from localStorage or use mock data
-    const savedLeads = localStorage.getItem('crm_leads');
-    const savedPros = localStorage.getItem('crm_professionals');
-    const savedCats = localStorage.getItem('crm_categories');
-
-    dispatch({ type: 'SET_LEADS', payload: savedLeads ? JSON.parse(savedLeads) : mockLeads });
-    dispatch({ type: 'SET_PROFESSIONALS', payload: savedPros ? JSON.parse(savedPros) : mockProfessionals });
-    dispatch({ type: 'SET_CATEGORIES', payload: savedCats ? JSON.parse(savedCats) : mockCategories });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
+  // Fetch categories (always, public read)
   useEffect(() => {
-    if (state.leads.length) localStorage.setItem('crm_leads', JSON.stringify(state.leads));
-  }, [state.leads]);
-  useEffect(() => {
-    if (state.professionals.length) localStorage.setItem('crm_professionals', JSON.stringify(state.professionals));
-  }, [state.professionals]);
-  useEffect(() => {
-    if (state.categories.length) localStorage.setItem('crm_categories', JSON.stringify(state.categories));
-  }, [state.categories]);
-
-  const updateLeadStatus = useCallback((id: string, status: LeadStatus) => {
-    dispatch({ type: 'UPDATE_LEAD', payload: { id, status } });
+    supabase.from('categories').select('*').order('name').then(({ data }) => {
+      if (data) setCategories(data as unknown as Category[]);
+    });
   }, []);
 
-  const assignProfessional = useCallback((leadId: string, professionalId: string) => {
-    dispatch({ type: 'UPDATE_LEAD', payload: { id: leadId, professional_id: professionalId, status: 'waiting' } });
-  }, []);
+  // Fetch data when user is available
+  const refreshLeads = useCallback(() => {
+    if (!user) return;
+    supabase.from('leads').select('*').order('created_at', { ascending: false }).then(({ data }) => {
+      if (data) setLeads(data as unknown as Lead[]);
+    });
+  }, [user]);
 
-  const addProfessional = useCallback((pro: Omit<Professional, 'id' | 'leads_count' | 'user_id' | 'created_at'>) => {
-    const newPro: Professional = {
+  const refreshProfessionals = useCallback(() => {
+    if (!user) return;
+    supabase.from('professionals').select('*').order('name').then(({ data }) => {
+      if (data) setProfessionals(data as unknown as Professional[]);
+    });
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      refreshLeads();
+      refreshProfessionals();
+    } else {
+      setLeads([]);
+      setProfessionals([]);
+    }
+  }, [user, refreshLeads, refreshProfessionals]);
+
+  // Realtime subscription for leads
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('leads-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'leads' }, () => {
+        refreshLeads();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user, refreshLeads]);
+
+  const updateLeadStatus = useCallback(async (id: string, status: LeadStatus) => {
+    setLeads(prev => prev.map(l => l.id === id ? { ...l, status, updated_at: new Date().toISOString() } : l));
+    const { error } = await supabase.from('leads').update({ status }).eq('id', id);
+    if (error) { toast.error('Erro ao atualizar status'); refreshLeads(); }
+  }, [refreshLeads]);
+
+  const assignProfessional = useCallback(async (leadId: string, professionalId: string) => {
+    setLeads(prev => prev.map(l => l.id === leadId ? { ...l, professional_id: professionalId, status: 'waiting' as LeadStatus } : l));
+    const { error } = await supabase.from('leads').update({ professional_id: professionalId, status: 'waiting' }).eq('id', leadId);
+    if (error) { toast.error('Erro ao atribuir profissional'); refreshLeads(); }
+  }, [refreshLeads]);
+
+  const addProfessional = useCallback(async (pro: { name: string; category_id: string; whatsapp: string }) => {
+    if (!user) return;
+    const { data, error } = await supabase.from('professionals').insert({
       ...pro,
-      id: crypto.randomUUID(),
-      leads_count: 0,
-      user_id: 'u1',
-      created_at: new Date().toISOString(),
-    };
-    dispatch({ type: 'ADD_PROFESSIONAL', payload: newPro });
-  }, []);
+      user_id: user.id,
+    }).select().single();
+    if (error) { toast.error('Erro ao cadastrar profissional'); return; }
+    if (data) setProfessionals(prev => [...prev, data as unknown as Professional]);
+  }, [user]);
 
-  const deleteProfessional = useCallback((id: string) => {
-    dispatch({ type: 'DELETE_PROFESSIONAL', payload: id });
-  }, []);
+  const deleteProfessional = useCallback(async (id: string) => {
+    setProfessionals(prev => prev.filter(p => p.id !== id));
+    const { error } = await supabase.from('professionals').delete().eq('id', id);
+    if (error) { toast.error('Erro ao remover profissional'); refreshProfessionals(); }
+  }, [refreshProfessionals]);
 
   const getCategoryName = useCallback((id: string) => {
-    return state.categories.find(c => c.id === id)?.name || 'Sem categoria';
-  }, [state.categories]);
+    return categories.find(c => c.id === id)?.name || 'Sem categoria';
+  }, [categories]);
 
   const getCategoryColor = useCallback((id: string) => {
-    return state.categories.find(c => c.id === id)?.color || '0 0% 50%';
-  }, [state.categories]);
+    return categories.find(c => c.id === id)?.color || '0 0% 50%';
+  }, [categories]);
 
   const getProfessionalName = useCallback((id: string) => {
-    return state.professionals.find(p => p.id === id)?.name || 'Não atribuído';
-  }, [state.professionals]);
+    return professionals.find(p => p.id === id)?.name || 'Não atribuído';
+  }, [professionals]);
+
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  }, []);
 
   return (
     <CRMContext.Provider value={{
-      ...state, dispatch,
+      leads, professionals, categories, user, loading,
       updateLeadStatus, assignProfessional, addProfessional, deleteProfessional,
-      getCategoryName, getCategoryColor, getProfessionalName,
+      getCategoryName, getCategoryColor, getProfessionalName, signOut, refreshLeads,
     }}>
       {children}
     </CRMContext.Provider>
