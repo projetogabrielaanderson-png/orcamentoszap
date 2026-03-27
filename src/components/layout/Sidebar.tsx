@@ -7,6 +7,7 @@ import {
   Users,
   Globe,
   BarChart3,
+  MessageSquareText,
   ChevronLeft,
   ChevronRight,
   Zap,
@@ -18,6 +19,7 @@ const navItems = [
   { href: '/kanban', label: 'Kanban', icon: Kanban },
   { href: '/professionals', label: 'Profissionais', icon: Users },
   { href: '/capture', label: 'Captação', icon: Globe },
+  { href: '/templates', label: 'Templates', icon: MessageSquareText },
   { href: '/analytics', label: 'Análises', icon: BarChart3 },
 ];
 

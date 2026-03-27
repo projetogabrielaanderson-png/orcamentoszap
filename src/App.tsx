@@ -11,6 +11,7 @@ import CapturePage from "./pages/Capture.tsx";
 import AnalyticsPage from "./pages/Analytics.tsx";
 import AuthPage from "./pages/Auth.tsx";
 import LeadFormPage from "./pages/LeadForm.tsx";
+import TemplatesPage from "./pages/Templates.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -56,6 +57,7 @@ const App = () => (
             <Route path="/professionals" element={<ProtectedRoute><ProfessionalsPage /></ProtectedRoute>} />
             <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+            <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
