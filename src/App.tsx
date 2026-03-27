@@ -10,6 +10,7 @@ import ProfessionalsPage from "./pages/Professionals.tsx";
 import CapturePage from "./pages/Capture.tsx";
 import AnalyticsPage from "./pages/Analytics.tsx";
 import AuthPage from "./pages/Auth.tsx";
+import LeadFormPage from "./pages/LeadForm.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthRoute />} />
+            <Route path="/form" element={<LeadFormPage />} />
             <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
             <Route path="/kanban" element={<ProtectedRoute><KanbanPage /></ProtectedRoute>} />
             <Route path="/professionals" element={<ProtectedRoute><ProfessionalsPage /></ProtectedRoute>} />
