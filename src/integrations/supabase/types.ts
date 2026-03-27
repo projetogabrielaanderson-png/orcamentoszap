@@ -14,7 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      leads: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          message: string
+          name: string
+          origin_url: string
+          phone: string
+          professional_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          utm_campaign: string
+          utm_medium: string
+          utm_source: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          message?: string
+          name: string
+          origin_url?: string
+          phone: string
+          professional_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          utm_campaign?: string
+          utm_medium?: string
+          utm_source?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          name?: string
+          origin_url?: string
+          phone?: string
+          professional_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          utm_campaign?: string
+          utm_medium?: string
+          utm_source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      professionals: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          leads_count: number
+          name: string
+          user_id: string
+          whatsapp: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          leads_count?: number
+          name: string
+          user_id: string
+          whatsapp: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          leads_count?: number
+          name?: string
+          user_id?: string
+          whatsapp?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professionals_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
