@@ -4,12 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { useCRM } from '@/contexts/CRMContext';
 import { Copy, Check, ExternalLink, Code2, Link2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function EmbedGenerator() {
   const [siteUrl, setSiteUrl] = useState('https://meusite.com');
   const [copied, setCopied] = useState<'embed' | 'link' | null>(null);
+  const { user } = useCRM();
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const edgeEndpoint = `${supabaseUrl}/functions/v1/receive-lead`;

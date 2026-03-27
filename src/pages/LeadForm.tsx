@@ -34,6 +34,8 @@ const LeadFormPage = () => {
           phone: phone.trim(),
           message: message.trim(),
           origin_url: origin,
+          user_id: searchParams.get('owner') || '',
+          category_id: searchParams.get('category_id') || '',
           utm_source: searchParams.get('utm_source') || '',
           utm_medium: searchParams.get('utm_medium') || '',
           utm_campaign: searchParams.get('utm_campaign') || '',
