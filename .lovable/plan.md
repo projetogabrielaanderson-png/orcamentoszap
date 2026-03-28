@@ -1,112 +1,84 @@
 
 
-## LeadFlow CRM — Plano Revisado com Supabase
+## Formulários Personalizados por Categoria
 
-### Mudança Principal
-O backend será **Supabase** (conexão externa, não Lovable Cloud). Tabelas com RLS, realtime subscriptions para atualizações ao vivo, e Edge Function para receber leads externos.
+### Objetivo
+Permitir que o usuário crie formulários de captação personalizados para cada categoria, com campos customizáveis e opções de design (cores, título, descrição).
 
 ---
 
-### Banco de Dados (Supabase)
+### 1. Nova tabela: `form_configs`
 
-**Tabelas:**
+Armazena a configuração de cada formulário vinculado a uma categoria.
 
-```text
-categories
-├── id (uuid, PK)
-├── name (text)
-├── color (text)
-└── created_at (timestamptz)
+```sql
+CREATE TABLE public.form_configs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  category_id uuid NOT NULL,
+  title text NOT NULL DEFAULT 'Solicite um Orçamento',
+  description text NOT NULL DEFAULT 'Preencha seus dados e entraremos em contato',
+  primary_color text NOT NULL DEFAULT '#3b82f6',
+  bg_color text NOT NULL DEFAULT '#eef2ff',
+  logo_url text NOT NULL DEFAULT '',
+  custom_fields jsonb NOT NULL DEFAULT '[]',
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
 
-professionals
-├── id (uuid, PK)
-├── name (text)
-├── category_id (uuid, FK → categories)
-├── whatsapp (text)
-├── leads_count (int, default 0)
-├── user_id (uuid, FK → auth.users)
-└── created_at (timestamptz)
-
-leads
-├── id (uuid, PK)
-├── name (text)
-├── phone (text)
-├── message (text)
-├── category_id (uuid, FK → categories)
-├── professional_id (uuid, FK → professionals, nullable)
-├── status (text: 'new' | 'in_progress' | 'waiting' | 'done')
-├── origin_url (text)
-├── utm_source (text)
-├── utm_medium (text)
-├── utm_campaign (text)
-├── user_id (uuid, FK → auth.users)
-├── created_at (timestamptz)
-└── updated_at (timestamptz)
+ALTER TABLE public.form_configs ENABLE ROW LEVEL SECURITY;
 ```
 
-- **RLS** habilitado em todas as tabelas, políticas baseadas em `auth.uid()`
-- **Realtime** habilitado na tabela `leads` para atualizações ao vivo no Kanban
+- `custom_fields`: array JSON de objetos `{ label, type, required }` onde type pode ser `text`, `email`, `select`, `textarea`
+- RLS: CRUD apenas para o `user_id` autenticado
+- Policy pública de SELECT para renderizar o formulário sem login
+
+### 2. Nova página: Editor de Formulários (`/capture`)
+
+Reformular a página de Captação para incluir:
+
+- **Lista de formulários** por categoria (cards)
+- **Botão "Criar Formulário"** que abre modal/editor
+- **Editor visual** com:
+  - Título e descrição personalizáveis
+  - Cor primária e cor de fundo (color pickers)
+  - URL do logo (opcional)
+  - **Campos customizáveis**: adicionar/remover/reordenar campos extras além de nome e telefone
+  - Preview ao vivo ao lado
+- **Link direto e código embed** gerados automaticamente com `category_id` na URL
+
+### 3. Formulário público (`/form`) dinâmico
+
+Atualizar `LeadForm.tsx` para:
+
+- Ler `category_id` dos query params
+- Buscar `form_configs` do banco (query pública, sem auth)
+- Renderizar o formulário com as cores, título, campos personalizados
+- Enviar campos extras no campo `message` ou em um novo campo JSON
+- Fallback para o formulário padrão se não houver config
+
+### 4. Edge Function `receive-lead`
+
+- Aceitar campo opcional `custom_data` (JSON) para dados dos campos extras
+- Gravar em `leads.message` (concatenado) — sem necessidade de alterar schema de leads
+
+### 5. Atualização do EmbedGenerator
+
+- Substituir o gerador fixo por um seletor de formulário por categoria
+- Gerar link/embed com `category_id` correto
 
 ---
 
-### Edge Function: Receber Leads Externos
+### Arquivos afetados
 
-- `supabase/functions/receive-lead/index.ts`
-- Endpoint público (sem JWT) para receber leads de formulários externos
-- Validação com Zod (nome, telefone, mensagem, categoria)
-- Sanitização de inputs
-- CORS headers configurados
-- Insere lead com status `'new'`
-
----
-
-### Autenticação
-
-- Login com email/senha via Supabase Auth
-- Página de login/registro simples
-- Rotas protegidas (redirect se não autenticado)
-
----
-
-### Estrutura de Arquivos
-
-```text
-src/
-├── integrations/supabase/     # Client e tipos gerados
-├── contexts/AuthContext.tsx    # Auth state
-├── types/crm.ts               # Tipos TypeScript
-├── components/
-│   ├── layout/ (Sidebar, Header)
-│   ├── dashboard/ (KPICards, AlertBanners, QuickChart)
-│   ├── kanban/ (KanbanBoard, KanbanColumn, LeadCard, KanbanFilters)
-│   ├── leads/ (LeadModal)
-│   ├── professionals/ (ProfessionalsTable, ProfessionalForm)
-│   ├── capture/ (EmbedGenerator, FormPreview)
-│   └── analytics/ (LineChart, BarChart, PieChart, FunnelChart)
-├── pages/
-│   ├── Auth.tsx
-│   ├── Index.tsx (Dashboard)
-│   ├── Kanban.tsx
-│   ├── Professionals.tsx
-│   ├── Capture.tsx
-│   └── Analytics.tsx
-supabase/
-├── functions/receive-lead/index.ts
-└── migrations/ (schema SQL)
-```
-
----
-
-### Funcionalidades (mesmo escopo)
-
-1. **Dashboard**: KPIs via queries Supabase, gráficos com Recharts, alertas
-2. **Kanban**: Drag-and-drop com `@hello-pangea/dnd`, realtime via Supabase subscriptions, filtros
-3. **Modal do Lead**: Info + ações, envio WhatsApp via `wa.me` deep link
-4. **Profissionais**: CRUD completo via Supabase, tabela + modal
-5. **Captação**: Gerador de HTML embed apontando para a Edge Function, link direto, preview
-6. **Analytics**: Gráficos (linha, barra, pizza, funil) com dados do Supabase
-7. **Dark mode** opcional
-
-### Dependências Novas
-- `@hello-pangea/dnd`, `recharts`, `date-fns`
+| Arquivo | Ação |
+|---|---|
+| `supabase/migrations/...` | Criar tabela `form_configs` + RLS |
+| `src/pages/Capture.tsx` | Reformular com lista + editor |
+| `src/components/capture/FormEditor.tsx` | Novo componente editor |
+| `src/components/capture/FormPreview.tsx` | Preview ao vivo |
+| `src/components/capture/EmbedGenerator.tsx` | Adaptar para usar `form_configs` |
+| `src/pages/LeadForm.tsx` | Renderização dinâmica baseada em config |
+| `supabase/functions/receive-lead/index.ts` | Aceitar `custom_data` |
 
