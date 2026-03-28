@@ -286,7 +286,7 @@ const LeadFormPage = () => {
   // ── Loading config ──
   if (configLoading) {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center" style={{ backgroundColor: formConfig.bg_color }}>
+      <div className="flex min-h-[100dvh] items-center justify-center" style={{ backgroundColor: formConfig.bg_color, backgroundImage: 'url(/images/form-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="flex flex-col items-center gap-3">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-t-transparent" style={{ borderColor: primaryColor }} />
           <p className="text-sm text-gray-400 animate-pulse">Carregando formulário...</p>
@@ -307,7 +307,7 @@ const LeadFormPage = () => {
     const activeLabel = sendingSteps[activeIdx >= 0 ? activeIdx : sendingSteps.length - 1].label;
 
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center p-4" style={{ backgroundColor: formConfig.bg_color }}>
+      <div className="flex min-h-[100dvh] items-center justify-center p-4" style={{ backgroundColor: formConfig.bg_color, backgroundImage: 'url(/images/form-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-12 text-center shadow-2xl">
           {/* Progress ring */}
           <div className="relative mx-auto mb-8 h-28 w-28">
@@ -354,7 +354,7 @@ const LeadFormPage = () => {
   // ── Success phase ──
   if (phase === 'done') {
     return (
-      <div className="relative flex min-h-[100dvh] items-center justify-center p-4 overflow-hidden" style={{ backgroundColor: formConfig.bg_color }}>
+      <div className="relative flex min-h-[100dvh] items-center justify-center p-4 overflow-hidden" style={{ backgroundColor: formConfig.bg_color, backgroundImage: 'url(/images/form-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {/* Animated background loader */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.07]">
           <img
@@ -395,7 +395,7 @@ const LeadFormPage = () => {
   const StepIcon = step.icon;
 
   return (
-    <div className="flex min-h-[100dvh] flex-col" style={{ backgroundColor: formConfig.bg_color }}>
+    <div className="flex min-h-[100dvh] flex-col" style={{ backgroundColor: formConfig.bg_color, backgroundImage: 'url(/images/form-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       {/* Header with timeline */}
       <div className="sticky top-0 z-10 w-full bg-white/80 backdrop-blur-lg border-b border-gray-100 shadow-sm">
         <div className="mx-auto max-w-lg px-4 sm:px-6 py-4">
