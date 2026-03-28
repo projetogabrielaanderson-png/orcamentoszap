@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useCRM } from '@/contexts/CRMContext';
+import { useLeadNotifications } from '@/hooks/useLeadNotifications';
 
 export function AppHeader() {
   const [dark, setDark] = useState(false);
