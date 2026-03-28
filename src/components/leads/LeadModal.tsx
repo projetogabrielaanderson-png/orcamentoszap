@@ -46,14 +46,15 @@ function applyTemplate(content: string, pro: { name: string }, lead: Lead, categ
 const FALLBACK_TEMPLATE = `Olá {{profissional}}! Temos um novo lead para você:\n\n◆ Nome: {{lead_nome}}\n◆ Telefone: {{lead_telefone}}\n◆ Mensagem: {{lead_mensagem}}\n◆ Categoria: {{categoria}}`;
 
 export function LeadModal({ lead, onClose }: LeadModalProps) {
-  const { getCategoryName, professionals, updateLeadStatus, assignProfessional, user } = useCRM();
+  const { getCategoryName, professionals, categories, updateLeadStatus, assignProfessional, user } = useCRM();
   const [showProfessionalSelect, setShowProfessionalSelect] = useState(false);
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [followUpRefresh, setFollowUpRefresh] = useState(0);
   const [leadTags, setLeadTags] = useState<string[]>(lead.tags || []);
+  const [filterCategoryId, setFilterCategoryId] = useState<string>(lead.category_id);
 
-  const relevantPros = professionals.filter(p => p.category_id === lead.category_id);
+  const filteredPros = professionals.filter(p => filterCategoryId ? p.category_id === filterCategoryId : true);
 
   useEffect(() => {
     supabase.from('message_templates').select('id,name,content,is_default')
@@ -184,21 +185,34 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
                     </Select>
                   </div>
                 )}
+                <p className="text-sm font-medium">Filtrar por categoria:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  <Badge
+                    variant={filterCategoryId === '' ? 'default' : 'outline'}
+                    className="cursor-pointer text-[11px]"
+                    onClick={() => setFilterCategoryId('')}
+                  >
+                    Todas
+                  </Badge>
+                  {categories.map(cat => (
+                    <Badge
+                      key={cat.id}
+                      variant={filterCategoryId === cat.id ? 'default' : 'outline'}
+                      className="cursor-pointer text-[11px]"
+                      onClick={() => setFilterCategoryId(cat.id)}
+                    >
+                      {cat.name}
+                    </Badge>
+                  ))}
+                </div>
                 <p className="text-sm font-medium">Selecione o profissional:</p>
-                {relevantPros.length === 0 ? (
-                  <>
-                    <p className="text-xs text-muted-foreground">Nenhum profissional nesta categoria</p>
-                    {professionals.map(pro => (
-                      <Button key={pro.id} variant="outline" className="w-full justify-start gap-2" onClick={() => handleSendWhatsApp(pro)}>
-                        <UserCheck className="h-4 w-4" /> {pro.name}
-                        <span className="ml-auto text-xs text-muted-foreground">{getCategoryName(pro.category_id)}</span>
-                      </Button>
-                    ))}
-                  </>
+                {filteredPros.length === 0 ? (
+                  <p className="text-xs text-muted-foreground">Nenhum profissional encontrado</p>
                 ) : (
-                  relevantPros.map(pro => (
+                  filteredPros.map(pro => (
                     <Button key={pro.id} variant="outline" className="w-full justify-start gap-2" onClick={() => handleSendWhatsApp(pro)}>
                       <UserCheck className="h-4 w-4" /> {pro.name}
+                      <span className="ml-auto text-xs text-muted-foreground">{getCategoryName(pro.category_id)}</span>
                     </Button>
                   ))
                 )}
