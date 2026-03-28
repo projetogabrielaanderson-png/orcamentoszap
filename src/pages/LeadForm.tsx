@@ -153,6 +153,7 @@ const LeadFormPage = () => {
   const canProceed = useCallback(() => {
     if (!step) return false;
     if (step.type === 'terms') return acceptedTerms;
+    if (step.type === 'schedule') return true; // optional step
     if (step.required && !currentValue.trim()) return false;
     if (step.validate) return !step.validate(currentValue);
     return true;
