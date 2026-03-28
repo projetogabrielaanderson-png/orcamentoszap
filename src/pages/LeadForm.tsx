@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Info } from 'lucide-react';
+import { Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { CheckCircle, Loader2, ArrowRight, ArrowLeft, Send, Shield, User, Phone, MessageSquare, CalendarDays, FileCheck, Check } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
