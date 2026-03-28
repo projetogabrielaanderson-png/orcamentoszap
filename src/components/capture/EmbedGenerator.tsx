@@ -17,8 +17,7 @@ export function EmbedGenerator({ formConfig }: EmbedGeneratorProps) {
   const [copied, setCopied] = useState<'embed' | 'link' | null>(null);
   const { user } = useCRM();
 
-  const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-  const baseUrl = window.location.origin;
+  const baseUrl = 'https://orcamentoszap.lovable.app';
   const ownerId = user?.id ?? '';
 
   const directLink = `${baseUrl}/form?category_id=${formConfig.category_id}&owner=${encodeURIComponent(ownerId)}&origin=${encodeURIComponent(siteUrl)}`;
