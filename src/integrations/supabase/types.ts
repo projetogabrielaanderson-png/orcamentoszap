@@ -35,6 +35,59 @@ export type Database = {
         }
         Relationships: []
       }
+      form_configs: {
+        Row: {
+          bg_color: string
+          category_id: string
+          created_at: string
+          custom_fields: Json
+          description: string
+          id: string
+          is_active: boolean
+          logo_url: string
+          primary_color: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bg_color?: string
+          category_id: string
+          created_at?: string
+          custom_fields?: Json
+          description?: string
+          id?: string
+          is_active?: boolean
+          logo_url?: string
+          primary_color?: string
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bg_color?: string
+          category_id?: string
+          created_at?: string
+          custom_fields?: Json
+          description?: string
+          id?: string
+          is_active?: boolean
+          logo_url?: string
+          primary_color?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_configs_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           category_id: string
