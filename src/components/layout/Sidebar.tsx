@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Zap,
+  Settings,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -21,6 +22,7 @@ const navItems = [
   { href: '/capture', label: 'Captação', icon: Globe },
   { href: '/templates', label: 'Templates', icon: MessageSquareText },
   { href: '/analytics', label: 'Análises', icon: BarChart3 },
+  { href: '/settings', label: 'Configurações', icon: Settings },
 ];
 
 export function AppSidebar() {

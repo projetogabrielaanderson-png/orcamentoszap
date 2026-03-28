@@ -9,12 +9,18 @@ import { LeadModal } from '@/components/leads/LeadModal';
 export function KanbanBoard() {
   const { leads, updateLeadStatus } = useCRM();
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-  const [filters, setFilters] = useState({ category: '', professional: '', search: '' });
+  const [filters, setFilters] = useState({ category: '', professional: '', search: '', dateFrom: '', dateTo: '', utmSource: '' });
 
   const filteredLeads = leads.filter(l => {
     if (filters.category && l.category_id !== filters.category) return false;
     if (filters.professional && l.professional_id !== filters.professional) return false;
-    if (filters.search && !l.name.toLowerCase().includes(filters.search.toLowerCase())) return false;
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      if (!l.name.toLowerCase().includes(q) && !l.phone.includes(q)) return false;
+    }
+    if (filters.utmSource && l.utm_source !== filters.utmSource) return false;
+    if (filters.dateFrom && l.created_at < filters.dateFrom) return false;
+    if (filters.dateTo && l.created_at > filters.dateTo + 'T23:59:59') return false;
     return true;
   });
 

@@ -32,6 +32,7 @@ export interface Lead {
   user_id: string;
   created_at: string;
   updated_at: string;
+  tags: string[];
 }
 
 export const STATUS_CONFIG: Record<LeadStatus, { label: string; color: string; bgClass: string; textClass: string }> = {

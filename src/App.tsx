@@ -12,6 +12,7 @@ import AnalyticsPage from "./pages/Analytics.tsx";
 import AuthPage from "./pages/Auth.tsx";
 import LeadFormPage from "./pages/LeadForm.tsx";
 import TemplatesPage from "./pages/Templates.tsx";
+import SettingsPage from "./pages/Settings.tsx";
 import TermosPage from "./pages/Termos.tsx";
 import PrivacidadePage from "./pages/Privacidade.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -62,6 +63,7 @@ const App = () => (
             <Route path="/capture" element={<ProtectedRoute><CapturePage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/templates" element={<ProtectedRoute><TemplatesPage /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

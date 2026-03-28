@@ -2,6 +2,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { KPICards } from '@/components/dashboard/KPICards';
 import { AlertBanners } from '@/components/dashboard/AlertBanners';
 import { QuickCharts } from '@/components/dashboard/QuickCharts';
+import { PendingFollowUps } from '@/components/dashboard/PendingFollowUps';
 
 const Index = () => {
   return (
@@ -13,6 +14,7 @@ const Index = () => {
         </div>
         <AlertBanners />
         <KPICards />
+        <PendingFollowUps />
         <QuickCharts />
       </div>
     </AppLayout>

@@ -35,6 +35,47 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_ups: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          lead_id: string
+          note: string
+          scheduled_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lead_id: string
+          note?: string
+          scheduled_at: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+          note?: string
+          scheduled_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_ups_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       form_configs: {
         Row: {
           bg_color: string
@@ -88,6 +129,73 @@ export type Database = {
           },
         ]
       }
+      lead_activities: {
+        Row: {
+          action: string
+          created_at: string
+          details: string
+          id: string
+          lead_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: string
+          id?: string
+          lead_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: string
+          id?: string
+          lead_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          lead_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          lead_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_notes_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           category_id: string
@@ -99,6 +207,7 @@ export type Database = {
           phone: string
           professional_id: string | null
           status: string
+          tags: string[]
           updated_at: string
           user_id: string
           utm_campaign: string
@@ -115,6 +224,7 @@ export type Database = {
           phone: string
           professional_id?: string | null
           status?: string
+          tags?: string[]
           updated_at?: string
           user_id: string
           utm_campaign?: string
@@ -131,6 +241,7 @@ export type Database = {
           phone?: string
           professional_id?: string | null
           status?: string
+          tags?: string[]
           updated_at?: string
           user_id?: string
           utm_campaign?: string
@@ -221,6 +332,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_settings: {
+        Row: {
+          company_logo: string
+          company_name: string
+          company_phone: string
+          created_at: string
+          id: string
+          notification_push: boolean
+          notification_sound: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_logo?: string
+          company_name?: string
+          company_phone?: string
+          created_at?: string
+          id?: string
+          notification_push?: boolean
+          notification_sound?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_logo?: string
+          company_name?: string
+          company_phone?: string
+          created_at?: string
+          id?: string
+          notification_push?: boolean
+          notification_sound?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
