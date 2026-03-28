@@ -1,19 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { CheckCircle, Loader2, Send } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface CustomField {
+  label: string;
+  type: 'text' | 'email' | 'select' | 'textarea';
+  required: boolean;
+  options?: string[];
+}
+
+interface FormConfigData {
+  title: string;
+  description: string;
+  primary_color: string;
+  bg_color: string;
+  logo_url: string;
+  custom_fields: CustomField[];
+}
+
+const defaultFormConfig: FormConfigData = {
+  title: 'Solicite um Orçamento',
+  description: 'Preencha seus dados e entraremos em contato',
+  primary_color: '#3b82f6',
+  bg_color: '#eef2ff',
+  logo_url: '',
+  custom_fields: [],
+};
 
 const LeadFormPage = () => {
   const [searchParams] = useSearchParams();
   const origin = searchParams.get('origin') || '';
+  const categoryId = searchParams.get('category_id') || '';
+
+  const [formConfig, setFormConfig] = useState<FormConfigData>(defaultFormConfig);
+  const [configLoading, setConfigLoading] = useState(!!categoryId);
 
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
+  const [customValues, setCustomValues] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!categoryId) { setConfigLoading(false); return; }
+    supabase
+      .from('form_configs')
+      .select('title, description, primary_color, bg_color, logo_url, custom_fields')
+      .eq('category_id', categoryId)
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setFormConfig({
+            title: data.title,
+            description: data.description,
+            primary_color: data.primary_color,
+            bg_color: data.bg_color,
+            logo_url: data.logo_url,
+            custom_fields: (data.custom_fields as any) || [],
+          });
+        }
+        setConfigLoading(false);
+      });
+  }, [categoryId]);
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const endpoint = `${supabaseUrl}/functions/v1/receive-lead`;
@@ -39,9 +94,17 @@ const LeadFormPage = () => {
       return;
     }
     if (phoneDigits.length < 10 || phoneDigits.length > 11) {
-      toast.error('Telefone inválido. Use DDD + número (ex: 44999990000).');
+      toast.error('Telefone inválido. Use DDD + número.');
       return;
     }
+
+    // Build custom data string
+    const customParts = formConfig.custom_fields
+      .filter(f => f.label.trim() && customValues[f.label])
+      .map(f => `${f.label}: ${customValues[f.label]}`);
+
+    const fullMessage = [message.trim(), ...customParts].filter(Boolean).join('\n');
+
     setLoading(true);
     try {
       const res = await fetch(endpoint, {
@@ -50,10 +113,10 @@ const LeadFormPage = () => {
         body: JSON.stringify({
           name: trimmedName,
           phone: phoneDigits,
-          message: message.trim(),
+          message: fullMessage,
           origin_url: origin,
           user_id: searchParams.get('owner') || '',
-          category_id: searchParams.get('category_id') || '',
+          category_id: categoryId,
           utm_source: searchParams.get('utm_source') || '',
           utm_medium: searchParams.get('utm_medium') || '',
           utm_campaign: searchParams.get('utm_campaign') || '',
@@ -71,9 +134,17 @@ const LeadFormPage = () => {
     }
   };
 
+  if (configLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center" style={{ backgroundColor: formConfig.bg_color }}>
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" style={{ borderColor: formConfig.primary_color }} />
+      </div>
+    );
+  }
+
   if (submitted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="flex min-h-screen items-center justify-center p-4" style={{ backgroundColor: formConfig.bg_color }}>
         <div className="w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-xl">
           <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
           <h2 className="mt-4 text-2xl font-bold text-gray-900">Enviado com sucesso!</h2>
@@ -84,49 +155,95 @@ const LeadFormPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div className="flex min-h-screen items-center justify-center p-4" style={{ backgroundColor: formConfig.bg_color }}>
       <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-xl">
-        <h1 className="text-2xl font-bold text-gray-900">Solicite um Orçamento</h1>
-        <p className="mt-1 text-sm text-gray-500">Preencha seus dados e entraremos em contato</p>
+        {formConfig.logo_url && (
+          <img src={formConfig.logo_url} alt="Logo" className="mx-auto mb-4 h-12 object-contain" />
+        )}
+        <h1 className="text-2xl font-bold text-gray-900">{formConfig.title}</h1>
+        <p className="mt-1 text-sm text-gray-500">{formConfig.description}</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <Input
-              placeholder="Seu nome"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-              className="h-12"
-            />
-          </div>
-          <div>
-            <Input
-              placeholder="WhatsApp (ex: (44) 99999-0000)"
-              value={phone}
-              onChange={handlePhoneChange}
-              required
-              className="h-12"
-            />
-          </div>
-          <div>
-            <textarea
-              placeholder="Descreva o que precisa..."
-              value={message}
-              onChange={e => setMessage(e.target.value)}
-              rows={3}
-              className="w-full rounded-lg border border-input bg-background px-3 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            />
-          </div>
-          <Button type="submit" className="h-12 w-full gap-2 text-base" disabled={loading}>
+          <Input
+            placeholder="Seu nome"
+            value={name}
+            onChange={e => setName(e.target.value)}
+            required
+            className="h-12"
+          />
+          <Input
+            placeholder="WhatsApp (ex: (44) 99999-0000)"
+            value={phone}
+            onChange={handlePhoneChange}
+            required
+            className="h-12"
+          />
+
+          {formConfig.custom_fields.filter(f => f.label.trim()).map((field, i) => {
+            const val = customValues[field.label] || '';
+            const onChange = (v: string) => setCustomValues(prev => ({ ...prev, [field.label]: v }));
+
+            if (field.type === 'textarea') {
+              return (
+                <textarea
+                  key={i}
+                  placeholder={field.label}
+                  value={val}
+                  onChange={e => onChange(e.target.value)}
+                  required={field.required}
+                  rows={3}
+                  className="w-full rounded-lg border border-input bg-background px-3 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                />
+              );
+            }
+            if (field.type === 'select' && field.options?.length) {
+              return (
+                <select
+                  key={i}
+                  value={val}
+                  onChange={e => onChange(e.target.value)}
+                  required={field.required}
+                  className="w-full h-12 rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                >
+                  <option value="">{field.label}</option>
+                  {field.options.map((o, j) => <option key={j} value={o}>{o}</option>)}
+                </select>
+              );
+            }
+            return (
+              <Input
+                key={i}
+                type={field.type === 'email' ? 'email' : 'text'}
+                placeholder={field.label}
+                value={val}
+                onChange={e => onChange(e.target.value)}
+                required={field.required}
+                className="h-12"
+              />
+            );
+          })}
+
+          <textarea
+            placeholder="Descreva o que precisa..."
+            value={message}
+            onChange={e => setMessage(e.target.value)}
+            rows={3}
+            className="w-full rounded-lg border border-input bg-background px-3 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex h-12 w-full items-center justify-center gap-2 rounded-lg text-base font-semibold text-white transition-opacity disabled:opacity-50"
+            style={{ backgroundColor: formConfig.primary_color }}
+          >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             {loading ? 'Enviando...' : 'Enviar'}
-          </Button>
+          </button>
         </form>
 
         {origin && (
-          <p className="mt-4 text-center text-xs text-gray-400">
-            Origem: {origin}
-          </p>
+          <p className="mt-4 text-center text-xs text-gray-400">Origem: {origin}</p>
         )}
       </div>
     </div>
