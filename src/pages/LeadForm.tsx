@@ -30,7 +30,120 @@ const defaultFormConfig: FormConfigData = {
   custom_fields: [],
 };
 
-interface Step {
+const DAYS_PT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const MONTHS_PT = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+function MiniCalendar({ value, onChange, primaryColor }: { value: string; onChange: (v: string) => void; primaryColor: string }) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+  const initial = value ? new Date(value + 'T00:00:00') : today;
+  const [viewMonth, setViewMonth] = useState(initial.getMonth());
+  const [viewYear, setViewYear] = useState(initial.getFullYear());
+
+  const days = useMemo(() => {
+    const first = new Date(viewYear, viewMonth, 1);
+    const startDay = first.getDay();
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const cells: (number | null)[] = [];
+    for (let i = 0; i < startDay; i++) cells.push(null);
+    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+    return cells;
+  }, [viewMonth, viewYear]);
+
+  const canGoPrev = viewYear > today.getFullYear() || (viewYear === today.getFullYear() && viewMonth > today.getMonth());
+
+  const handleSelect = (day: number) => {
+    const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    if (dateStr < todayStr) return;
+    onChange(dateStr);
+  };
+
+  return (
+    <div className="rounded-2xl border-2 border-gray-100 bg-white p-4 shadow-sm">
+      {/* Month nav */}
+      <div className="flex items-center justify-between mb-4">
+        <button
+          type="button"
+          onClick={() => {
+            if (viewMonth === 0) { setViewMonth(11); setViewYear(y => y - 1); }
+            else setViewMonth(m => m - 1);
+          }}
+          disabled={!canGoPrev}
+          className="flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-90 disabled:opacity-30"
+          style={{ backgroundColor: `${primaryColor}10`, color: primaryColor }}
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <span className="text-base font-bold text-gray-800">
+          {MONTHS_PT[viewMonth]} {viewYear}
+        </span>
+        <button
+          type="button"
+          onClick={() => {
+            if (viewMonth === 11) { setViewMonth(0); setViewYear(y => y + 1); }
+            else setViewMonth(m => m + 1);
+          }}
+          className="flex h-10 w-10 items-center justify-center rounded-xl transition-all active:scale-90"
+          style={{ backgroundColor: `${primaryColor}10`, color: primaryColor }}
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Day headers */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {DAYS_PT.map(d => (
+          <div key={d} className="text-center text-xs font-semibold text-gray-400 py-1">{d}</div>
+        ))}
+      </div>
+
+      {/* Day cells */}
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day, i) => {
+          if (day === null) return <div key={`e${i}`} />;
+          const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const isPast = dateStr < todayStr;
+          const isSelected = dateStr === value;
+          const isToday = dateStr === todayStr;
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={isPast}
+              onClick={() => handleSelect(day)}
+              className={`relative flex h-11 w-full items-center justify-center rounded-xl text-sm font-medium transition-all duration-150 active:scale-90
+                ${isPast ? 'text-gray-200 cursor-not-allowed' : 'hover:shadow-md cursor-pointer'}
+                ${isToday && !isSelected ? 'font-bold' : ''}
+              `}
+              style={{
+                backgroundColor: isSelected ? primaryColor : undefined,
+                color: isSelected ? 'white' : isPast ? undefined : isToday ? primaryColor : '#374151',
+                boxShadow: isSelected ? `0 4px 14px ${primaryColor}40` : undefined,
+              }}
+            >
+              {day}
+              {isToday && !isSelected && (
+                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 h-1 w-1 rounded-full" style={{ backgroundColor: primaryColor }} />
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Selected display */}
+      {value && (
+        <div className="mt-3 flex items-center justify-center gap-2 rounded-xl py-2 text-sm font-semibold" style={{ backgroundColor: `${primaryColor}10`, color: primaryColor }}>
+          <CalendarDays className="h-4 w-4" />
+          {(() => { const [y, m, d] = value.split('-'); return `${d}/${m}/${y}`; })()}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
   id: string;
   label: string;
   subtitle?: string;
