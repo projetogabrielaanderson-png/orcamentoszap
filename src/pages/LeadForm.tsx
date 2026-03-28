@@ -239,7 +239,10 @@ const LeadFormPage = () => {
       .filter((f, i) => f.label.trim() && values[`custom_${i}`])
       .map((f, i) => `${f.label}: ${values[`custom_${i}`]}`);
     const scheduleParts = [];
-    if (values.schedule_date) scheduleParts.push(`Data Preferencial: ${values.schedule_date}`);
+    if (values.schedule_date) {
+      const [y, m, d] = values.schedule_date.split('-');
+      scheduleParts.push(`Data Preferencial: ${d}/${m}/${y}`);
+    }
     if (values.schedule_period) scheduleParts.push(`Período: ${values.schedule_period}`);
     const fullMessage = [(values.message || '').trim(), ...customParts, ...scheduleParts].filter(Boolean).join('\n');
 
