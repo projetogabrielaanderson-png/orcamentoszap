@@ -1,13 +1,16 @@
 import { useCRM } from '@/contexts/CRMContext';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, X } from 'lucide-react';
+import { Search, X, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface Filters {
   category: string;
   professional: string;
   search: string;
+  dateFrom?: string;
+  dateTo?: string;
+  utmSource?: string;
 }
 
 interface KanbanFiltersProps {
@@ -16,9 +19,11 @@ interface KanbanFiltersProps {
 }
 
 export function KanbanFilters({ filters, setFilters }: KanbanFiltersProps) {
-  const { categories, professionals } = useCRM();
+  const { categories, professionals, leads } = useCRM();
 
-  const hasActiveFilters = filters.category || filters.professional || filters.search;
+  const utmSources = [...new Set(leads.map(l => l.utm_source).filter(Boolean))];
+
+  const hasActiveFilters = filters.category || filters.professional || filters.search || filters.dateFrom || filters.dateTo || filters.utmSource;
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -27,7 +32,7 @@ export function KanbanFilters({ filters, setFilters }: KanbanFiltersProps) {
         <Input
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          placeholder="Buscar leads..."
+          placeholder="Buscar por nome ou telefone..."
           className="pl-10"
         />
       </div>
@@ -53,8 +58,27 @@ export function KanbanFilters({ filters, setFilters }: KanbanFiltersProps) {
           ))}
         </SelectContent>
       </Select>
+      {utmSources.length > 0 && (
+        <Select value={filters.utmSource || ''} onValueChange={(v) => setFilters({ ...filters, utmSource: v === 'all' ? '' : v })}>
+          <SelectTrigger className="w-36">
+            <SelectValue placeholder="Origem UTM" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Todas origens</SelectItem>
+            {utmSources.map(s => (
+              <SelectItem key={s} value={s}>{s}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      <div className="flex items-center gap-1.5">
+        <Calendar className="h-4 w-4 text-muted-foreground" />
+        <Input type="date" value={filters.dateFrom || ''} onChange={e => setFilters({ ...filters, dateFrom: e.target.value })} className="w-36 h-9" />
+        <span className="text-xs text-muted-foreground">até</span>
+        <Input type="date" value={filters.dateTo || ''} onChange={e => setFilters({ ...filters, dateTo: e.target.value })} className="w-36 h-9" />
+      </div>
       {hasActiveFilters && (
-        <Button variant="ghost" size="sm" onClick={() => setFilters({ category: '', professional: '', search: '' })}>
+        <Button variant="ghost" size="sm" onClick={() => setFilters({ category: '', professional: '', search: '', dateFrom: '', dateTo: '', utmSource: '' })}>
           <X className="mr-1 h-3 w-3" /> Limpar
         </Button>
       )}
