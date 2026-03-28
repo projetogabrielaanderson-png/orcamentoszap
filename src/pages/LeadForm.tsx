@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { CalendarDays, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { CheckCircle, Loader2, ArrowRight, ArrowLeft, Send, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,7 +34,7 @@ interface Step {
   id: string;
   label: string;
   placeholder: string;
-  type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'terms';
+  type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'terms' | 'schedule';
   required: boolean;
   options?: string[];
   validate?: (value: string) => string | null;
@@ -110,6 +111,13 @@ const LeadFormPage = () => {
       validate: field.required ? ((v: string) => !v.trim() ? `${field.label} é obrigatório` : null) : undefined,
     })),
     {
+      id: 'schedule',
+      label: 'Quando você gostaria de ser atendido?',
+      placeholder: '',
+      type: 'schedule',
+      required: false,
+    },
+    {
       id: 'message',
       label: 'Descreva o que você precisa',
       placeholder: 'Conte-nos mais detalhes sobre sua necessidade...',
@@ -145,6 +153,7 @@ const LeadFormPage = () => {
   const canProceed = useCallback(() => {
     if (!step) return false;
     if (step.type === 'terms') return acceptedTerms;
+    if (step.type === 'schedule') return true; // optional step
     if (step.required && !currentValue.trim()) return false;
     if (step.validate) return !step.validate(currentValue);
     return true;
@@ -208,7 +217,10 @@ const LeadFormPage = () => {
     const customParts = formConfig.custom_fields
       .filter((f, i) => f.label.trim() && values[`custom_${i}`])
       .map((f, i) => `${f.label}: ${values[`custom_${i}`]}`);
-    const fullMessage = [(values.message || '').trim(), ...customParts].filter(Boolean).join('\n');
+    const scheduleParts = [];
+    if (values.schedule_date) scheduleParts.push(`Data Preferencial: ${values.schedule_date}`);
+    if (values.schedule_period) scheduleParts.push(`Período: ${values.schedule_period}`);
+    const fullMessage = [(values.message || '').trim(), ...customParts, ...scheduleParts].filter(Boolean).join('\n');
 
     try {
       const res = await fetch(endpoint, {
@@ -351,7 +363,48 @@ const LeadFormPage = () => {
             <h2 className="text-xl font-bold text-gray-900 sm:text-2xl">{step.label}</h2>
 
             <div className="mt-6">
-              {step.type === 'terms' ? (
+              {step.type === 'schedule' ? (
+                <div className="space-y-5">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Data Preferencial <span className="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <input
+                      type="date"
+                      value={values.schedule_date || ''}
+                      onChange={e => setValues(prev => ({ ...prev, schedule_date: e.target.value }))}
+                      min={new Date().toISOString().split('T')[0]}
+                      className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3.5 text-base transition-colors focus:border-blue-400 focus:bg-white focus:outline-none"
+                      style={{ '--tw-ring-color': formConfig.primary_color } as any}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                      Período <span className="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <div className="space-y-2">
+                      {['Manhã', 'Tarde', 'Noite', 'Qualquer horário'].map((period) => (
+                        <button
+                          key={period}
+                          type="button"
+                          onClick={() => setValues(prev => ({ ...prev, schedule_period: period }))}
+                          className="w-full rounded-xl border-2 p-3.5 text-left text-base transition-all hover:shadow-md"
+                          style={{
+                            borderColor: values.schedule_period === period ? formConfig.primary_color : '#e5e7eb',
+                            backgroundColor: values.schedule_period === period ? `${formConfig.primary_color}10` : 'white',
+                          }}
+                        >
+                          {period}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2.5 rounded-xl border border-sky-200 bg-sky-50 p-3.5 text-sm text-sky-700">
+                    <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                    <span>A data é apenas uma preferência. Confirmaremos a disponibilidade exata pelo WhatsApp.</span>
+                  </div>
+                </div>
+              ) : step.type === 'terms' ? (
                 <div className="space-y-4">
                   <label className="flex items-start gap-3 cursor-pointer rounded-xl border-2 p-4 transition-colors hover:bg-gray-50"
                     style={{ borderColor: acceptedTerms ? formConfig.primary_color : '#e5e7eb' }}
