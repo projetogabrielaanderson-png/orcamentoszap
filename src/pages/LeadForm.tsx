@@ -471,16 +471,13 @@ const LeadFormPage = () => {
               {step.type === 'schedule' ? (
                 <div className="space-y-5">
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
                       Data Preferencial
                     </label>
-                    <input
-                      type="date"
+                    <MiniCalendar
                       value={values.schedule_date || ''}
-                      onChange={e => setValues(prev => ({ ...prev, schedule_date: e.target.value }))}
-                      min={new Date().toISOString().split('T')[0]}
-                      className="w-full rounded-2xl border-2 border-gray-200 bg-gray-50/50 px-5 py-4 text-base transition-all duration-200 focus:border-transparent focus:bg-white focus:outline-none focus:ring-2"
-                      style={{ '--tw-ring-color': primaryColor } as any}
+                      onChange={(date) => setValues(prev => ({ ...prev, schedule_date: date }))}
+                      primaryColor={primaryColor}
                     />
                   </div>
                   <div>
