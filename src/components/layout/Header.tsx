@@ -9,6 +9,7 @@ import { useLeadNotifications } from '@/hooks/useLeadNotifications';
 export function AppHeader() {
   const [dark, setDark] = useState(false);
   const { leads, signOut, user } = useCRM();
+  useLeadNotifications();
   const newLeadsCount = leads.filter(l => l.status === 'new').length;
 
   useEffect(() => {
