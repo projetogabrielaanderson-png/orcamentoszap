@@ -354,10 +354,19 @@ const LeadFormPage = () => {
   // ── Success phase ──
   if (phase === 'done') {
     return (
-      <div className="flex min-h-[100dvh] items-center justify-center p-4" style={{ backgroundColor: formConfig.bg_color }}>
-        <div className="w-full max-w-md rounded-3xl bg-white p-8 sm:p-12 text-center shadow-2xl">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full" style={{ backgroundColor: `${primaryColor}15` }}>
-            <div className="flex h-16 w-16 items-center justify-center rounded-full" style={{ backgroundColor: `${primaryColor}25` }}>
+      <div className="relative flex min-h-[100dvh] items-center justify-center p-4 overflow-hidden" style={{ backgroundColor: formConfig.bg_color }}>
+        {/* Animated background loader */}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center opacity-[0.07]">
+          <img
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Ccircle fill='%23FF156D' stroke='%23FF156D' stroke-width='15' r='15' cx='35' cy='100'%3E%3Canimate attributeName='cx' calcMode='spline' dur='2' values='35;165;165;35;35' keySplines='0 .1 .5 1;0 .1 .5 1;0 .1 .5 1;0 .1 .5 1' repeatCount='indefinite' begin='0'%3E%3C/animate%3E%3C/circle%3E%3Ccircle fill='%23FF156D' stroke='%23FF156D' stroke-width='15' opacity='.8' r='15' cx='35' cy='100'%3E%3Canimate attributeName='cx' calcMode='spline' dur='2' values='35;165;165;35;35' keySplines='0 .1 .5 1;0 .1 .5 1;0 .1 .5 1;0 .1 .5 1' repeatCount='indefinite' begin='0.05'%3E%3C/animate%3E%3C/circle%3E%3Ccircle fill='%23FF156D' stroke='%23FF156D' stroke-width='15' opacity='.6' r='15' cx='35' cy='100'%3E%3Canimate attributeName='cx' calcMode='spline' dur='2' values='35;165;165;35;35' keySplines='0 .1 .5 1;0 .1 .5 1;0 .1 .5 1;0 .1 .5 1' repeatCount='indefinite' begin='.1'%3E%3C/animate%3E%3C/circle%3E%3Ccircle fill='%23FF156D' stroke='%23FF156D' stroke-width='15' opacity='.4' r='15' cx='35' cy='100'%3E%3Canimate attributeName='cx' calcMode='spline' dur='2' values='35;165;165;35;35' keySplines='0 .1 .5 1;0 .1 .5 1;0 .1 .5 1;0 .1 .5 1' repeatCount='indefinite' begin='.15'%3E%3C/animate%3E%3C/circle%3E%3Ccircle fill='%23FF156D' stroke='%23FF156D' stroke-width='15' opacity='.2' r='15' cx='35' cy='100'%3E%3Canimate attributeName='cx' calcMode='spline' dur='2' values='35;165;165;35;35' keySplines='0 .1 .5 1;0 .1 .5 1;0 .1 .5 1;0 .1 .5 1' repeatCount='indefinite' begin='.2'%3E%3C/animate%3E%3C/circle%3E%3C/svg%3E"
+            alt=""
+            className="w-[600px] h-[600px]"
+          />
+        </div>
+
+        <div className="relative w-full max-w-md rounded-3xl bg-white/95 backdrop-blur-sm p-8 sm:p-12 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-500">
+          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full animate-in zoom-in duration-700" style={{ backgroundColor: `${primaryColor}15` }}>
+            <div className="flex h-16 w-16 items-center justify-center rounded-full animate-in spin-in-180 duration-700" style={{ backgroundColor: `${primaryColor}25` }}>
               <CheckCircle className="h-8 w-8" style={{ color: primaryColor }} />
             </div>
           </div>
@@ -368,7 +377,7 @@ const LeadFormPage = () => {
           <p className="mt-1 text-sm text-gray-400">
             Um profissional entrará em contato pelo WhatsApp em breve.
           </p>
-          <div className="mt-8 rounded-2xl border-2 p-5 text-left text-sm" style={{ borderColor: `${primaryColor}30`, backgroundColor: `${primaryColor}05` }}>
+          <div className="mt-8 rounded-2xl border-2 p-5 text-left text-sm animate-in slide-in-from-bottom-4 duration-700 delay-300" style={{ borderColor: `${primaryColor}30`, backgroundColor: `${primaryColor}05` }}>
             <p className="font-semibold mb-3" style={{ color: primaryColor }}>Resumo da solicitação:</p>
             <div className="space-y-2 text-gray-600">
               <p className="flex items-center gap-2"><User className="h-4 w-4 text-gray-400" /> {values.name}</p>
