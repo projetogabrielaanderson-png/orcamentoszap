@@ -43,6 +43,7 @@ const LeadFormPage = () => {
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [customValues, setCustomValues] = useState<Record<string, string>>({});
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -230,6 +231,27 @@ const LeadFormPage = () => {
             rows={3}
             className="w-full rounded-lg border border-input bg-background px-3 py-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
+
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={e => setAcceptedTerms(e.target.checked)}
+              required
+              className="mt-1 h-4 w-4 rounded border-gray-300 accent-blue-500"
+              style={{ accentColor: formConfig.primary_color }}
+            />
+            <span className="text-xs text-gray-500">
+              Li e aceito os{' '}
+              <a href="/termos" target="_blank" rel="noopener noreferrer" className="underline font-medium" style={{ color: formConfig.primary_color }}>
+                Termos de Uso
+              </a>{' '}
+              e a{' '}
+              <a href="/privacidade" target="_blank" rel="noopener noreferrer" className="underline font-medium" style={{ color: formConfig.primary_color }}>
+                Política de Privacidade (LGPD)
+              </a>
+            </span>
+          </label>
 
           <button
             type="submit"
