@@ -8,9 +8,9 @@ interface Filters {
   category: string;
   professional: string;
   search: string;
-  dateFrom?: string;
-  dateTo?: string;
-  utmSource?: string;
+  dateFrom: string;
+  dateTo: string;
+  utmSource: string;
 }
 
 interface KanbanFiltersProps {
