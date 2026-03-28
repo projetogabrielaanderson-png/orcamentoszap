@@ -70,12 +70,18 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
     return applyTemplate(content, pro, lead, getCategoryName(lead.category_id));
   };
 
+  const formatPhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.startsWith('55') ? digits : `55${digits}`;
+  };
+
   const handleSendWhatsApp = (pro: typeof professionals[0]) => {
     const msg = encodeURIComponent(getMessageContent(pro));
+    const phone = formatPhone(pro.whatsapp);
     const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
     const url = isMobile
-      ? `https://wa.me/${pro.whatsapp}?text=${msg}`
-      : `https://web.whatsapp.com/send?phone=${pro.whatsapp}&text=${msg}`;
+      ? `https://wa.me/${phone}?text=${msg}`
+      : `https://web.whatsapp.com/send?phone=${phone}&text=${msg}`;
     window.open(url, '_blank');
     assignProfessional(lead.id, pro.id);
     if (user) logLeadActivity(lead.id, user.id, 'Encaminhado para profissional', pro.name);

@@ -35,7 +35,7 @@ export function ProfessionalsTable() {
                 </TableCell>
                 <TableCell>
                   <a
-                    href={`https://wa.me/${pro.whatsapp}`}
+                    href={`https://wa.me/${pro.whatsapp.replace(/\D/g, '').startsWith('55') ? pro.whatsapp.replace(/\D/g, '') : '55' + pro.whatsapp.replace(/\D/g, '')}`}
                     target="_blank"
                     rel="noopener"
                     className="flex items-center gap-1.5 text-sm text-primary hover:underline"
