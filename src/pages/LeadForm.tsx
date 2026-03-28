@@ -143,7 +143,7 @@ function MiniCalendar({ value, onChange, primaryColor }: { value: string; onChan
   );
 }
 
-
+interface Step {
   id: string;
   label: string;
   subtitle?: string;
