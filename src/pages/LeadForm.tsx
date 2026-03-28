@@ -111,6 +111,13 @@ const LeadFormPage = () => {
       validate: field.required ? ((v: string) => !v.trim() ? `${field.label} é obrigatório` : null) : undefined,
     })),
     {
+      id: 'schedule',
+      label: 'Quando você gostaria de ser atendido?',
+      placeholder: '',
+      type: 'schedule',
+      required: false,
+    },
+    {
       id: 'message',
       label: 'Descreva o que você precisa',
       placeholder: 'Conte-nos mais detalhes sobre sua necessidade...',
