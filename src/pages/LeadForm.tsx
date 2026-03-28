@@ -34,7 +34,7 @@ interface Step {
   id: string;
   label: string;
   placeholder: string;
-  type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'terms';
+  type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'terms' | 'schedule';
   required: boolean;
   options?: string[];
   validate?: (value: string) => string | null;
