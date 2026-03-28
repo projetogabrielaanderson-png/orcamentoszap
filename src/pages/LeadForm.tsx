@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { CalendarDays, Info } from 'lucide-react';
 import { toast } from 'sonner';
 import { CheckCircle, Loader2, ArrowRight, ArrowLeft, Send, Shield } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
