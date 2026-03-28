@@ -92,7 +92,7 @@ export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
         primary_color: form.primary_color,
         bg_color: form.bg_color,
         logo_url: form.logo_url.trim(),
-        custom_fields: form.custom_fields.filter(f => f.label.trim()),
+        custom_fields: JSON.parse(JSON.stringify(form.custom_fields.filter(f => f.label.trim()))),
         is_active: form.is_active,
       };
 
