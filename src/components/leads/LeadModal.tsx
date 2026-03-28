@@ -29,11 +29,16 @@ interface MessageTemplate {
   is_default: boolean;
 }
 
+function formatPhoneWithCountry(phone: string) {
+  const digits = phone.replace(/\D/g, '');
+  return digits.startsWith('55') ? `+${digits}` : `+55${digits}`;
+}
+
 function applyTemplate(content: string, pro: { name: string }, lead: Lead, categoryName: string) {
   return content
     .replace(/\{\{profissional\}\}/g, pro.name)
     .replace(/\{\{lead_nome\}\}/g, lead.name)
-    .replace(/\{\{lead_telefone\}\}/g, lead.phone)
+    .replace(/\{\{lead_telefone\}\}/g, formatPhoneWithCountry(lead.phone))
     .replace(/\{\{lead_mensagem\}\}/g, lead.message)
     .replace(/\{\{categoria\}\}/g, categoryName);
 }
