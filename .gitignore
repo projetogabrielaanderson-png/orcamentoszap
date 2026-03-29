@@ -23,9 +23,5 @@ dist-ssr
 *.sln
 *.sw?
 .env
-.env
-<<<<<<< HEAD
-=======
-
 .vercel
->>>>>>> e96d3b3 (Deploy to Vercel and dynamic URL setup)
+supabase/.temp/

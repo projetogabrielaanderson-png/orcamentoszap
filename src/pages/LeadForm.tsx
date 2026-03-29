@@ -332,8 +332,7 @@ const LeadFormPage = () => {
     }
   };
 
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-  const endpoint = `${supabaseUrl}/functions/v1/receive-lead`;
+
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -360,10 +359,8 @@ const LeadFormPage = () => {
     const fullMessage = [(values.message || '').trim(), ...customParts, ...scheduleParts].filter(Boolean).join('\n');
 
     try {
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { data, error: invokeError } = await supabase.functions.invoke('receive-lead', {
+        body: {
           name: (values.name || '').trim(),
           phone: phoneDigits,
           message: fullMessage,
@@ -373,12 +370,11 @@ const LeadFormPage = () => {
           utm_source: searchParams.get('utm_source') || '',
           utm_medium: searchParams.get('utm_medium') || '',
           utm_campaign: searchParams.get('utm_campaign') || '',
-        }),
+        },
       });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Erro ao enviar');
-      }
+
+      if (invokeError) throw invokeError;
+      
       clearInterval(interval);
       setSendingProgress(100);
       setTimeout(() => setPhase('done'), 800);
