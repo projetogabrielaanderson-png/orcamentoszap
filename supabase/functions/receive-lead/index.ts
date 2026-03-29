@@ -96,7 +96,23 @@ Deno.serve(async (req) => {
     }
 
     if (!categoryId) {
-      console.info("Missing category_id, picking first available");
+      console.info("Category ID is empty, fetching default...");
+    } else {
+      // Check if provided categoryId actually exists
+      const { data: catExists } = await supabase
+        .from("categories")
+        .select("id")
+        .eq("id", categoryId)
+        .maybeSingle();
+      
+      if (!catExists) {
+        console.warn(`Provided category_id ${categoryId} does not exist. Finding fallback...`);
+        categoryId = ""; // Reset to trigger fallback fetch
+      }
+    }
+
+    if (!categoryId) {
+      console.info("Fetching fallback category...");
       const { data: category, error: categoryError } = await supabase
         .from("categories")
         .select("id")
@@ -104,8 +120,8 @@ Deno.serve(async (req) => {
         .single();
 
       if (categoryError || !category?.id) {
-        console.error("Failed to find any category:", categoryError);
-        return new Response(JSON.stringify({ error: "Não foi possível encontrar uma categoria padrão" }), {
+        console.error("No categories found in database at all:", categoryError);
+        return new Response(JSON.stringify({ error: "Nenhuma categoria disponível no sistema para atribuir o lead." }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -114,8 +130,25 @@ Deno.serve(async (req) => {
       categoryId = category.id;
     }
 
+
     if (!userId) {
-      console.info("Missing user_id/owner, trying to find first professional");
+      console.info("User ID is empty, fetching default professional...");
+    } else {
+      // Check if provided userId actually belongs to a professional
+      const { data: profExists } = await supabase
+        .from("professionals")
+        .select("user_id")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (!profExists) {
+        console.warn(`Provided user_id ${userId} is not associated with any professional. Finding fallback...`);
+        userId = ""; // Reset to trigger fallback fetch
+      }
+    }
+
+    if (!userId) {
+      console.info("Missing user_id/owner, trying to find first professional...");
       const { data: leadOwner } = await supabase
         .from("professionals")
         .select("user_id")
@@ -127,7 +160,7 @@ Deno.serve(async (req) => {
 
     if (!userId) {
       console.warn("No user_id provided and no professional found in database");
-      return new Response(JSON.stringify({ error: "Sua solicitação não pôde ser atribuída a um profissional. Verifique se o link está correto ou se há profissionais cadastrados." }), {
+      return new Response(JSON.stringify({ error: "Sua solicitação não pôde ser atribuída a um profissional. Verifique se há profissionais cadastrados no sistema." }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -149,6 +182,7 @@ Deno.serve(async (req) => {
         user_id: userId,
         status: "new",
       })
+
       .select("id")
       .single();
 
