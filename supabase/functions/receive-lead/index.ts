@@ -76,8 +76,11 @@ Deno.serve(async (req) => {
     let categoryId = normalize(rawBody.category_id);
     let userId = normalize(rawBody.user_id) || normalize(rawBody.owner);
 
+    console.log("Processing lead:", { name, phone, categoryId, userId, originUrl });
+
     if (!name || name.length < 2 || name.length > 120) {
-      return new Response(JSON.stringify({ error: "Nome inválido" }), {
+      console.warn("Invalid name:", name);
+      return new Response(JSON.stringify({ error: "Nome inválido (mínimo 2 caracteres)" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -85,13 +88,15 @@ Deno.serve(async (req) => {
 
     const phoneDigits = phone.replace(/\D/g, "");
     if (!phoneDigits || phoneDigits.length < 10 || phoneDigits.length > 15) {
-      return new Response(JSON.stringify({ error: "Telefone inválido" }), {
+      console.warn("Invalid phone:", phone);
+      return new Response(JSON.stringify({ error: "Telefone inválido (insira DDD + número)" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (!categoryId) {
+      console.info("Missing category_id, picking first available");
       const { data: category, error: categoryError } = await supabase
         .from("categories")
         .select("id")
@@ -99,7 +104,8 @@ Deno.serve(async (req) => {
         .single();
 
       if (categoryError || !category?.id) {
-        return new Response(JSON.stringify({ error: "Nenhuma categoria disponível" }), {
+        console.error("Failed to find any category:", categoryError);
+        return new Response(JSON.stringify({ error: "Não foi possível encontrar uma categoria padrão" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -109,6 +115,7 @@ Deno.serve(async (req) => {
     }
 
     if (!userId) {
+      console.info("Missing user_id/owner, trying to find first professional");
       const { data: leadOwner } = await supabase
         .from("professionals")
         .select("user_id")
@@ -119,11 +126,14 @@ Deno.serve(async (req) => {
     }
 
     if (!userId) {
-      return new Response(JSON.stringify({ error: "Lead sem proprietário (owner/user_id)" }), {
+      console.warn("No user_id provided and no professional found in database");
+      return new Response(JSON.stringify({ error: "Sua solicitação não pôde ser atribuída a um profissional. Verifique se o link está correto ou se há profissionais cadastrados." }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    console.log("Saving lead to DB for user:", userId);
 
     const { data: lead, error } = await supabase
       .from("leads")
@@ -143,22 +153,25 @@ Deno.serve(async (req) => {
       .single();
 
     if (error || !lead) {
-      console.error("Insert error", { message: error?.message, code: error?.code });
-      return new Response(JSON.stringify({ error: "Erro ao salvar lead" }), {
+      console.error("Database insert error:", { message: error?.message, code: error?.code });
+      return new Response(JSON.stringify({ error: `Erro ao salvar lead na base: ${error?.message || 'Erro desconhecido'}` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    console.log("Lead saved successfully:", lead.id);
 
     return new Response(JSON.stringify({ success: true, lead_id: lead.id }), {
       status: 201,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
-    console.error("Unexpected error", err);
-    return new Response(JSON.stringify({ error: "Erro interno" }), {
+    console.error("Critical/Unexpected error in function:", err);
+    return new Response(JSON.stringify({ error: `Erro interno ao processar lead: ${err.message || 'Erro inesperado'}` }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
+

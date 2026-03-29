@@ -380,7 +380,25 @@ const LeadFormPage = () => {
       setTimeout(() => setPhase('done'), 800);
     } catch (err: any) {
       clearInterval(interval);
-      toast.error(err.message || 'Erro ao enviar. Tente novamente.');
+      console.error('Submission error:', err);
+      
+      let errorMsg = 'Erro ao enviar. Tente novamente.';
+      
+      // Try to extract the specific error from the function response
+      if (err.context) {
+        try {
+          const body = await err.context.json();
+          if (body && body.error) {
+            errorMsg = body.error;
+          }
+        } catch (e) {
+          console.error('Error parsing error response:', e);
+        }
+      } else if (err.message) {
+        errorMsg = err.message;
+      }
+      
+      toast.error(errorMsg);
       setPhase('quiz');
       setLoading(false);
     }
