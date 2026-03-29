@@ -10,7 +10,8 @@ export interface Category {
 export interface Professional {
   id: string;
   name: string;
-  category_id: string;
+  category_id?: string;
+  category_ids?: string[];
   whatsapp: string;
   leads_count: number;
   user_id: string;

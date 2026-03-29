@@ -297,7 +297,8 @@ export type Database = {
       }
       professionals: {
         Row: {
-          category_id: string
+          category_id: string | null
+          category_ids: string[] | null
           created_at: string
           id: string
           leads_count: number
@@ -306,7 +307,8 @@ export type Database = {
           whatsapp: string
         }
         Insert: {
-          category_id: string
+          category_id?: string | null
+          category_ids?: string[] | null
           created_at?: string
           id?: string
           leads_count?: number
@@ -315,7 +317,8 @@ export type Database = {
           whatsapp: string
         }
         Update: {
-          category_id?: string
+          category_id?: string | null
+          category_ids?: string[] | null
           created_at?: string
           id?: string
           leads_count?: number

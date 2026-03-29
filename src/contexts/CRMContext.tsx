@@ -12,7 +12,8 @@ interface CRMContextType {
   loading: boolean;
   updateLeadStatus: (id: string, status: LeadStatus) => void;
   assignProfessional: (leadId: string, professionalId: string) => void;
-  addProfessional: (pro: { name: string; category_id: string; whatsapp: string }) => void;
+  addProfessional: (pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => void;
+  updateProfessional: (id: string, pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => void;
   deleteProfessional: (id: string) => void;
   getCategoryName: (id: string) => string;
   getCategoryColor: (id: string) => string;
@@ -99,7 +100,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
     if (error) { toast.error('Erro ao atribuir profissional'); refreshLeads(); }
   }, [refreshLeads]);
 
-  const addProfessional = useCallback(async (pro: { name: string; category_id: string; whatsapp: string }) => {
+  const addProfessional = useCallback(async (pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => {
     if (!user) return;
     const { data, error } = await supabase.from('professionals').insert({
       ...pro,
@@ -108,6 +109,12 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
     if (error) { toast.error('Erro ao cadastrar profissional'); return; }
     if (data) setProfessionals(prev => [...prev, data as unknown as Professional]);
   }, [user]);
+
+  const updateProfessional = useCallback(async (id: string, pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => {
+    setProfessionals(prev => prev.map(p => p.id === id ? { ...p, ...pro } : p));
+    const { error } = await supabase.from('professionals').update(pro).eq('id', id);
+    if (error) { toast.error('Erro ao atualizar profissional'); refreshProfessionals(); }
+  }, [refreshProfessionals]);
 
   const deleteProfessional = useCallback(async (id: string) => {
     setProfessionals(prev => prev.filter(p => p.id !== id));
@@ -135,7 +142,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   return (
     <CRMContext.Provider value={{
       leads, professionals, categories, user, loading,
-      updateLeadStatus, assignProfessional, addProfessional, deleteProfessional,
+      updateLeadStatus, assignProfessional, addProfessional, updateProfessional, deleteProfessional,
       getCategoryName, getCategoryColor, getProfessionalName, signOut, refreshLeads,
     }}>
       {children}

@@ -54,7 +54,13 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
   const [leadTags, setLeadTags] = useState<string[]>(lead.tags || []);
   const [filterCategoryId, setFilterCategoryId] = useState<string>(lead.category_id);
 
-  const filteredPros = professionals.filter(p => filterCategoryId ? p.category_id === filterCategoryId : true);
+  const filteredPros = professionals.filter(p => {
+    if (!filterCategoryId) return true;
+    if (p.category_ids && p.category_ids.length > 0) {
+      return p.category_ids.includes(filterCategoryId);
+    }
+    return p.category_id === filterCategoryId;
+  });
 
   useEffect(() => {
     supabase.from('message_templates').select('id,name,content,is_default')
@@ -212,7 +218,11 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
                   filteredPros.map(pro => (
                     <Button key={pro.id} variant="outline" className="w-full justify-start gap-2" onClick={() => handleSendWhatsApp(pro)}>
                       <UserCheck className="h-4 w-4" /> {pro.name}
-                      <span className="ml-auto text-xs text-muted-foreground">{getCategoryName(pro.category_id)}</span>
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {pro.category_ids?.length 
+                          ? pro.category_ids.map(id => getCategoryName(id)).join(', ') 
+                          : getCategoryName(pro.category_id || '')}
+                      </span>
                     </Button>
                   ))
                 )}
