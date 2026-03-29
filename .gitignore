@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 .env
 .env
+<<<<<<< HEAD
+=======
+
+.vercel
+>>>>>>> e96d3b3 (Deploy to Vercel and dynamic URL setup)
