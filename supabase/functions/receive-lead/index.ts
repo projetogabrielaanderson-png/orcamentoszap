@@ -202,7 +202,7 @@ Deno.serve(async (req) => {
     });
   } catch (err) {
     console.error("Critical/Unexpected error in function:", err);
-    return new Response(JSON.stringify({ error: `Erro interno ao processar lead: ${err.message || 'Erro inesperado'}` }), {
+    return new Response(JSON.stringify({ error: `Erro interno ao processar lead: ${(err as Error).message || 'Erro inesperado'}` }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
