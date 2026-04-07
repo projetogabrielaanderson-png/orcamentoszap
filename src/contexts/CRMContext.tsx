@@ -114,7 +114,9 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
 
   const updateProfessional = useCallback(async (id: string, pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => {
     setProfessionals(prev => prev.map(p => p.id === id ? { ...p, ...pro } : p));
-    const { error } = await supabase.from('professionals').update(pro).eq('id', id);
+    const { category_ids, ...rest } = pro;
+    const dbUpdate = { ...rest, category_id: rest.category_id || category_ids?.[0] || undefined };
+    const { error } = await supabase.from('professionals').update(dbUpdate).eq('id', id);
     if (error) { toast.error('Erro ao atualizar profissional'); refreshProfessionals(); }
   }, [refreshProfessionals]);
 
