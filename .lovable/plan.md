@@ -1,32 +1,40 @@
 
 
-## Estudo Atualizado — Funcionalidades LeadFlow CRM
+## Plano: Reduzir o tamanho do código HTML do Widget WhatsApp
 
-Itens removidos conforme solicitado: Dashboard do Profissional, Google Sheets, Multi-usuários, Webhooks, Landing Page.
+### Análise atual
+O código gerado tem ~130 linhas com CSS extenso, SVG path longo do ícone WhatsApp repetido, e JavaScript verboso. Há várias oportunidades de compactação.
 
----
+### Estratégias de redução
 
-### Funcionalidades Aprovadas
+1. **Inline SVG → Emoji Unicode + CSS**
+   - Substituir o `<svg><symbol>` do ícone WhatsApp (path com ~800 caracteres) por um emoji ou um SVG inline mínimo usando só o botão
+   - Remover o bloco `<svg style="display:none"><symbol...>` e as 3 referências `<use href="#wa-icon"/>`
 
-| # | Funcionalidade | Impacto | Complexidade |
-|---|---|---|---|
-| 1 | **Notificações em tempo real** — alerta sonoro/visual no dashboard para novos leads, badge no menu, push no navegador | Alto | Baixa |
-| 2 | **Follow-up / Lembretes** — agendar tarefas por lead, lista de pendências, alerta para leads parados. Nova tabela `follow_ups` | Alto | Média |
-| 3 | **Histórico de atividades por lead** — timeline de eventos no modal do lead. Nova tabela `lead_activities` | Alto | Média |
-| 4 | **Página de Configurações** — dados da empresa, logo, preferências, CRUD de categorias | Alto | Baixa |
-| 6 | **Relatórios exportáveis (PDF/CSV)** — exportar leads filtrados por período/categoria/status | Médio | Média |
-| 9 | **Filtros avançados e busca global** — busca por nome/telefone, filtros combinados no Kanban | Baixo | Baixa |
-| 12 | **Tags e notas nos leads** — tags livres e notas internas. Campos `tags text[]` + tabela `lead_notes` | Baixo | Baixa |
+2. **CSS mais compacto**
+   - Usar shorthand properties (ex: `margin`, `padding`, `border`)
+   - Remover propriedades redundantes (ex: `display:flex;align-items:center;justify-content:center` repetido 5x → classe utilitária `.fc`)
+   - Eliminar animação `wab-ping` (substituir por `animation` CSS simples com `box-shadow` pulsante, menos código)
+   - Simplificar estados (`:hover`, `:active`, `:disabled`) com menos propriedades
 
----
+3. **HTML mais enxuto**
+   - Remover atributos opcionais (`autocomplete`, `maxlength`, `aria-label`)
+   - Usar IDs curtos (ex: `wn` em vez de `wab-name`)
+   - Remover o campo Mensagem (textarea) — é opcional e adiciona ~3 linhas
 
-### Ordem de implementação recomendada
+4. **JavaScript mais compacto**
+   - Usar `$` como alias para `document.getElementById`
+   - Combinar event listeners
+   - Usar template literals e operadores ternários mais curtos
+   - Remover comentários
 
-1. Notificações em tempo real
-2. Página de Configurações
-3. Follow-up / Lembretes
-4. Histórico de atividades
-5. Filtros avançados e busca global
-6. Tags e notas nos leads
-7. Relatórios exportáveis
+5. **Resultado estimado**
+   - De ~130 linhas → ~60-70 linhas
+   - Redução de ~40-50% no tamanho total
+
+### Arquivos alterados
+- `src/components/capture/EmbedGenerator.tsx` — reescrever a função `generateWhatsAppWidgetHTML` com versão compacta
+
+### Funcionalidade preservada
+Todas as features continuam: botão flutuante, modal, validação, máscara telefone, envio ao CRM, redirecionamento WhatsApp, fechar com ESC/clique fora, prevenção de duplo envio.
 
