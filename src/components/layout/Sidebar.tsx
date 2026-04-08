@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/kanban', label: 'Kanban', icon: Kanban },
+  { href: '/finalized', label: 'Finalizados', icon: CheckCircle2 },
   { href: '/professionals', label: 'Profissionais', icon: Users },
   { href: '/capture', label: 'Captação', icon: Globe },
   { href: '/templates', label: 'Templates', icon: MessageSquareText },
