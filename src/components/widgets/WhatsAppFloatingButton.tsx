@@ -75,11 +75,25 @@ export function WhatsAppFloatingButton({
     const url = isMobile
       ? `https://wa.me/${whatsappNumber}?text=${encoded}`
       : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encoded}`;
-    window.open(url, '_blank');
-    setTimeout(() => {
-      setName(''); setPhone(''); setMessage(''); setAccepted(false); setErrors({}); setSending(false); setOpen(false);
-    }, 500);
+    whatsappUrlRef.current = url;
+    setSending(false);
+    setSent(true);
+    setCountdown(5);
   }, [name, phone, message, accepted, sending, validate, whatsappNumber, onLeadCapture]);
+
+  // Countdown + redirect after submit
+  useEffect(() => {
+    if (!sent) return;
+    if (countdown <= 0) {
+      window.open(whatsappUrlRef.current, '_blank');
+      setSent(false);
+      setName(''); setPhone(''); setMessage(''); setAccepted(false); setErrors({});
+      setOpen(false);
+      return;
+    }
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [sent, countdown]);
 
   const inputBase = "w-full rounded-xl border bg-white/60 backdrop-blur-sm px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-all duration-200 focus:bg-white/80 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500";
   const errorInput = "border-destructive ring-1 ring-destructive/20";
