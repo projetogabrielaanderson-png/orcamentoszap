@@ -48,6 +48,7 @@ const defaultConfig: Omit<FormConfig, 'user_id' | 'category_id'> = {
   logo_url: '',
   custom_fields: [],
   is_active: true,
+  whatsapp_number: '',
 };
 
 export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
