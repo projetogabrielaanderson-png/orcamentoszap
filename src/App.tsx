@@ -12,6 +12,7 @@ import AnalyticsPage from "./pages/Analytics.tsx";
 import AuthPage from "./pages/Auth.tsx";
 import LeadFormPage from "./pages/LeadForm.tsx";
 import TemplatesPage from "./pages/Templates.tsx";
+import FinalizedPage from "./pages/Finalized.tsx";
 import SettingsPage from "./pages/Settings.tsx";
 import TermosPage from "./pages/Termos.tsx";
 import PrivacidadePage from "./pages/Privacidade.tsx";
