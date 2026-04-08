@@ -508,7 +508,7 @@ const LeadFormPage = () => {
   }
 
   // ── Success phase ──
-
+  if (phase === 'done') {
     return (
       <div className="relative flex min-h-[100dvh] items-center justify-center p-4 overflow-hidden" style={{ backgroundColor: formConfig.bg_color, backgroundImage: 'url(/images/form-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {/* Animated background loader */}
