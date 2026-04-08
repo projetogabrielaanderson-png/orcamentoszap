@@ -48,6 +48,8 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .wf .er{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,.1)!important}
 .we{font-size:11px;color:#ef4444;margin-top:4px;display:none}
 .we.s{display:block}
+.we.big{font-size:14px;font-weight:600;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:8px 12px;display:none;align-items:center;gap:6px;margin-top:4px}
+.we.big.s{display:flex}
 .wk{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:11px;color:#6b7280;line-height:1.5}
 .wk input{margin-top:2px;accent-color:#25D366;width:18px;height:18px;flex-shrink:0}
 .wk a{color:#059669;font-weight:600;text-decoration:underline;text-underline-offset:2px}
@@ -58,6 +60,18 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .ws img{width:20px;height:20px;object-fit:contain}
 .wsc{display:flex;align-items:center;justify-content:center;gap:6px;padding-top:4px;font-size:10px;color:rgba(0,0,0,.25);font-weight:500}
 .wsc svg{width:12px;height:12px}
+.wok{display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 24px;text-align:center;animation:wz .3s ease}
+.wok.s{display:flex}
+.wok .ico{width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center}
+.wok .ico svg{width:32px;height:32px;color:#059669}
+.wok h3{font-size:18px;font-weight:700;color:#1f2937;margin:0}
+.wok p{font-size:14px;color:#6b7280;margin:0;line-height:1.5}
+.wok .cd{display:inline-flex;width:32px;height:32px;align-items:center;justify-content:center;border-radius:50%;background:#25D366;color:#fff;font-size:14px;font-weight:700}
+.wok .bar{width:200px;height:6px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden;margin-top:8px}
+.wok .bar div{height:100%;border-radius:99px;background:#25D366;transition:width 1s linear}
+.wok .go{display:flex;align-items:center;gap:8px;border:none;border-radius:12px;padding:12px 24px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:transform .2s}
+.wok .go:hover{transform:scale(1.05)}.wok .go:active{transform:scale(.95)}
+.wok .go img{width:20px;height:20px;object-fit:contain}
 @media(max-width:639px){.wm{max-height:95dvh;overflow-y:auto}}
 </style>
 <button class="wb" id="wB"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="WhatsApp"></button>
