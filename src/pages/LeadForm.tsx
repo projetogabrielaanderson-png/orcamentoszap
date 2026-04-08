@@ -178,7 +178,7 @@ const LeadFormPage = () => {
     if (!categoryId) { setConfigLoading(false); return; }
     supabase
       .from('form_configs')
-      .select('title, description, primary_color, bg_color, logo_url, custom_fields')
+      .select('title, description, primary_color, bg_color, logo_url, custom_fields, whatsapp_number')
       .eq('category_id', categoryId)
       .eq('is_active', true)
       .limit(1)
@@ -192,6 +192,7 @@ const LeadFormPage = () => {
             bg_color: data.bg_color,
             logo_url: data.logo_url,
             custom_fields: (data.custom_fields as any) || [],
+            whatsapp_number: data.whatsapp_number || '',
           });
         }
         setConfigLoading(false);
