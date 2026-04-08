@@ -48,6 +48,8 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .wf .er{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,.1)!important}
 .we{font-size:11px;color:#ef4444;margin-top:4px;display:none}
 .we.s{display:block}
+.we.big{font-size:14px;font-weight:600;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:8px 12px;display:none;align-items:center;gap:6px;margin-top:4px}
+.we.big.s{display:flex}
 .wk{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:11px;color:#6b7280;line-height:1.5}
 .wk input{margin-top:2px;accent-color:#25D366;width:18px;height:18px;flex-shrink:0}
 .wk a{color:#059669;font-weight:600;text-decoration:underline;text-underline-offset:2px}
@@ -58,6 +60,18 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .ws img{width:20px;height:20px;object-fit:contain}
 .wsc{display:flex;align-items:center;justify-content:center;gap:6px;padding-top:4px;font-size:10px;color:rgba(0,0,0,.25);font-weight:500}
 .wsc svg{width:12px;height:12px}
+.wok{display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 24px;text-align:center;animation:wz .3s ease}
+.wok.s{display:flex}
+.wok .ico{width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,.15);display:flex;align-items:center;justify-content:center}
+.wok .ico svg{width:32px;height:32px;color:#059669}
+.wok h3{font-size:18px;font-weight:700;color:#1f2937;margin:0}
+.wok p{font-size:14px;color:#6b7280;margin:0;line-height:1.5}
+.wok .cd{display:inline-flex;width:32px;height:32px;align-items:center;justify-content:center;border-radius:50%;background:#25D366;color:#fff;font-size:14px;font-weight:700}
+.wok .bar{width:200px;height:6px;border-radius:99px;background:rgba(0,0,0,.08);overflow:hidden;margin-top:8px}
+.wok .bar div{height:100%;border-radius:99px;background:#25D366;transition:width 1s linear}
+.wok .go{display:flex;align-items:center;gap:8px;border:none;border-radius:12px;padding:12px 24px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:transform .2s}
+.wok .go:hover{transform:scale(1.05)}.wok .go:active{transform:scale(.95)}
+.wok .go img{width:20px;height:20px;object-fit:contain}
 @media(max-width:639px){.wm{max-height:95dvh;overflow-y:auto}}
 </style>
 <button class="wb" id="wB"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="WhatsApp"></button>
@@ -73,20 +87,27 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 <div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Telefone / WhatsApp</label><input type="tel" id="wp" placeholder="(11) 99999-9999" inputmode="numeric"><p class="we" id="ep">Telefone inválido</p></div>
 <div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Mensagem</label><textarea id="wg" placeholder="Descreva o que precisa..."></textarea></div>
 <label class="wk"><input type="checkbox" id="wa"><span>Li e aceito a <a href="${siteUrl}/privacidade" target="_blank">Política de Privacidade</a> e os <a href="${siteUrl}/termos" target="_blank">Termos de Uso</a></span></label>
-<p class="we" id="ea" style="margin-top:-8px">Aceite os termos</p>
+<div class="we big" id="ea">⚠️ Você precisa aceitar os termos</div>
 <button type="submit" class="ws" id="wS"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt=""> Iniciar Conversa</button>
 <div class="wsc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Seus dados estão protegidos</div>
 </form>
+<div class="wok" id="wOk">
+<div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+<h3>Mensagem enviada!</h3>
+<p>Você será redirecionado para o WhatsApp em <span class="cd" id="wCd">5</span> segundos</p>
+<div class="bar"><div id="wBr"></div></div>
+<button class="go" id="wGo"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt=""> Ir agora para o WhatsApp</button>
+</div>
 </div>
 </div>
 <script>
 (function(){
-var $=function(i){return document.getElementById(i)},o=$('wO'),f=$('wF'),n=$('wn'),p=$('wp'),g=$('wg'),a=$('wa'),s=$('wS'),busy=0;
+var $=function(i){return document.getElementById(i)},o=$('wO'),f=$('wF'),n=$('wn'),p=$('wp'),g=$('wg'),a=$('wa'),s=$('wS'),ok=$('wOk'),cd=$('wCd'),br=$('wBr'),busy=0,waUrl='';
 $('wB').onclick=function(){o.classList.add('open');n.focus()};
-$('wX').onclick=function(){o.classList.remove('open')};
-o.onclick=function(e){e.target===o&&o.classList.remove('open')};
+$('wX').onclick=function(){o.classList.remove('open');ok.classList.remove('s');f.style.display=''};
+o.onclick=function(e){if(e.target===o){o.classList.remove('open');ok.classList.remove('s');f.style.display=''}};
 document.onkeydown=function(e){e.key==='Escape'&&o.classList.remove('open')};
-p.oninput=function(){var d=this.value.replace(/\\D/g,'').slice(0,11);this.value=d.length<=2?(d.length?'('+d:''):d.length<=7?'('+d.slice(0,2)+') '+d.slice(2):'('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7);ep.classList.remove('s');this.classList.remove('er')};
+p.oninput=function(){var d=this.value.replace(/\\D/g,'').slice(0,11);this.value=d.length<=2?(d.length?'('+d:''):d.length<=7?'('+d.slice(0,2)+') '+d.slice(2):'('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7);$('ep').classList.remove('s');this.classList.remove('er')};
 n.oninput=function(){$('en').classList.remove('s');this.classList.remove('er')};
 a.onchange=function(){$('ea').classList.remove('s')};
 f.onsubmit=function(e){
@@ -96,14 +117,16 @@ if(!nm){$('en').classList.add('s');n.classList.add('er');v=0}
 if(dg.length<10||dg.length>11){$('ep').classList.add('s');p.classList.add('er');v=0}
 if(!a.checked){$('ea').classList.add('s');v=0}
 if(!v)return;
-busy=1;s.disabled=1;s.innerHTML='<svg style="width:20px;height:20px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none"><circle opacity=".25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/><path opacity=".75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Abrindo WhatsApp…';
+busy=1;
 var ph=dg.indexOf('55')===0?dg:'55'+dg;
 fetch('${edgeEndpoint}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nm,phone:ph,message:mg,user_id:'${ownerId}',category_id:'${config.category_id}',origin_url:'${siteUrl}'})}).catch(function(){});
 var msg=encodeURIComponent('Olá! Meu nome é '+nm+'.\\n'+(mg?mg+'\\n':'')+'Tel: +'+ph);
-var url=/Android|iPhone|iPad/i.test(navigator.userAgent)?'https://wa.me/${whatsappNumber}?text='+msg:'https://web.whatsapp.com/send?phone=${whatsappNumber}&text='+msg;
-window.open(url,'_blank');
-setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s.innerHTML='<img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="" style="width:20px;height:20px;object-fit:contain"> Iniciar Conversa'},500);
+waUrl=/Android|iPhone|iPad/i.test(navigator.userAgent)?'https://wa.me/${whatsappNumber}?text='+msg:'https://web.whatsapp.com/send?phone=${whatsappNumber}&text='+msg;
+f.style.display='none';ok.classList.add('s');
+var sec=5;cd.textContent=sec;br.style.width='0%';
+var ti=setInterval(function(){sec--;cd.textContent=sec;br.style.width=((5-sec)/5*100)+'%';if(sec<=0){clearInterval(ti);window.open(waUrl,'_blank');setTimeout(function(){f.reset();f.style.display='';ok.classList.remove('s');o.classList.remove('open');busy=0},300)}},1000);
 };
+$('wGo').onclick=function(){window.open(waUrl,'_blank');f.reset();f.style.display='';ok.classList.remove('s');o.classList.remove('open');busy=0};
 })();
 </script>`;
 }

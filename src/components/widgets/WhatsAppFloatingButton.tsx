@@ -33,7 +33,10 @@ export function WhatsAppFloatingButton({
   const [accepted, setAccepted] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; phone?: string; accepted?: string }>({});
   const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [countdown, setCountdown] = useState(5);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const whatsappUrlRef = useRef('');
 
   useEffect(() => {
     if (!open) return;
@@ -72,11 +75,25 @@ export function WhatsAppFloatingButton({
     const url = isMobile
       ? `https://wa.me/${whatsappNumber}?text=${encoded}`
       : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encoded}`;
-    window.open(url, '_blank');
-    setTimeout(() => {
-      setName(''); setPhone(''); setMessage(''); setAccepted(false); setErrors({}); setSending(false); setOpen(false);
-    }, 500);
+    whatsappUrlRef.current = url;
+    setSending(false);
+    setSent(true);
+    setCountdown(5);
   }, [name, phone, message, accepted, sending, validate, whatsappNumber, onLeadCapture]);
+
+  // Countdown + redirect after submit
+  useEffect(() => {
+    if (!sent) return;
+    if (countdown <= 0) {
+      window.open(whatsappUrlRef.current, '_blank');
+      setSent(false);
+      setName(''); setPhone(''); setMessage(''); setAccepted(false); setErrors({});
+      setOpen(false);
+      return;
+    }
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [sent, countdown]);
 
   const inputBase = "w-full rounded-xl border bg-white/60 backdrop-blur-sm px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none transition-all duration-200 focus:bg-white/80 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500";
   const errorInput = "border-destructive ring-1 ring-destructive/20";
@@ -159,131 +176,166 @@ export function WhatsAppFloatingButton({
               </button>
             </div>
 
-            {/* Form body */}
-            <div className="space-y-4 px-5 pb-6 pt-5 sm:px-6">
-
-              {/* Nome */}
-              <div>
-                <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-foreground/80" htmlFor="wab-name">
-                  <User className="h-3.5 w-3.5 text-emerald-600/70" />
-                  Nome
-                </label>
-                <input
-                  id="wab-name"
-                  type="text"
-                  value={name}
-                  onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: undefined })); }}
-                  placeholder="Seu nome completo"
-                  className={`${inputBase} ${errors.name ? errorInput : normalInput}`}
-                  maxLength={100}
-                />
-                {errors.name && (
-                  <p className="mt-1 text-[11px] text-destructive animate-in fade-in slide-in-from-top-1 duration-200">{errors.name}</p>
-                )}
-              </div>
-
-              {/* Telefone */}
-              <div>
-                <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-foreground/80" htmlFor="wab-phone">
-                  <Phone className="h-3.5 w-3.5 text-emerald-600/70" />
-                  Telefone / WhatsApp
-                </label>
-                <input
-                  id="wab-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => { setPhone(applyPhoneMask(e.target.value)); setErrors(prev => ({ ...prev, phone: undefined })); }}
-                  placeholder="(11) 99999-9999"
-                  className={`${inputBase} ${errors.phone ? errorInput : normalInput}`}
-                  inputMode="numeric"
-                />
-                {errors.phone && (
-                  <p className="mt-1 text-[11px] text-destructive animate-in fade-in slide-in-from-top-1 duration-200">{errors.phone}</p>
-                )}
-              </div>
-
-              {/* Mensagem */}
-              <div>
-                <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-foreground/80" htmlFor="wab-msg">
-                  <MessageSquare className="h-3.5 w-3.5 text-emerald-600/70" />
-                  Mensagem
-                </label>
-                <textarea
-                  id="wab-msg"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Descreva o que precisa..."
-                  rows={3}
-                  maxLength={500}
-                  className={`${inputBase} ${normalInput} resize-none`}
-                />
-              </div>
-
-              {/* Checkbox LGPD */}
-              <label className="flex items-start gap-2.5 cursor-pointer group/check pt-1">
-                <div className="relative mt-0.5">
-                  <input
-                    type="checkbox"
-                    checked={accepted}
-                    onChange={(e) => { setAccepted(e.target.checked); setErrors(prev => ({ ...prev, accepted: undefined })); }}
-                    className="peer sr-only"
-                  />
-                  <div
-                    className={`flex h-[18px] w-[18px] items-center justify-center rounded-md border-2 transition-all duration-200 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 ${errors.accepted ? 'border-destructive' : 'border-muted-foreground/30 group-hover/check:border-muted-foreground/50'}`}
-                    style={{ backdropFilter: 'blur(4px)' }}
-                  >
-                    {accepted && (
-                      <svg className="h-3 w-3 text-white animate-in zoom-in duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
-                  </div>
+            {sent ? (
+              /* ── Success Screen ── */
+              <div className="flex flex-col items-center justify-center gap-4 px-6 py-10 text-center animate-in fade-in zoom-in-95 duration-300">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+                  <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
                 </div>
-                <span className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
-                  Li e aceito a{' '}
-                  <a href={privacyUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-600 underline decoration-emerald-600/30 underline-offset-2 hover:text-emerald-500 transition-colors">
-                    Política de Privacidade
-                  </a>{' '}
-                  e os{' '}
-                  <a href={termsUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-600 underline decoration-emerald-600/30 underline-offset-2 hover:text-emerald-500 transition-colors">
-                    Termos de Uso
-                  </a>
-                </span>
-              </label>
-              {errors.accepted && (
-                <p className="ml-7 text-[11px] text-destructive animate-in fade-in slide-in-from-top-1 duration-200">{errors.accepted}</p>
-              )}
-
-              {/* CTA */}
-              <button
-                onClick={handleSubmit}
-                disabled={sending}
-                className="group/btn relative mt-2 flex h-12 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl text-sm font-bold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(37,211,102,0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed sm:h-[52px] sm:text-[15px]"
-                style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)' }}
-              >
-                <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
-                {sending ? (
-                  <>
-                    <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Abrindo WhatsApp…
-                  </>
-                ) : (
-                  <>
-                    <img src={whatsappIcon} alt="" className="h-5 w-5 object-contain" />
-                    Iniciar Conversa
-                  </>
-                )}
-              </button>
-
-              {/* Security badge */}
-              <div className="flex items-center justify-center gap-1.5 pt-1">
-                <ShieldCheck className="h-3 w-3 text-muted-foreground/40" />
-                <span className="text-[10px] text-muted-foreground/40 font-medium">Seus dados estão protegidos</span>
+                <h3 className="text-lg font-bold text-foreground">Mensagem enviada!</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Você será redirecionado para o WhatsApp em{' '}
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-white">
+                    {countdown}
+                  </span>
+                  {' '}segundos
+                </p>
+                <div className="w-full max-w-[200px] overflow-hidden rounded-full bg-muted/50 h-1.5 mt-2">
+                  <div
+                    className="h-full rounded-full bg-emerald-500 transition-all duration-1000 ease-linear"
+                    style={{ width: `${((5 - countdown) / 5) * 100}%` }}
+                  />
+                </div>
+                <button
+                  onClick={() => { window.open(whatsappUrlRef.current, '_blank'); setSent(false); setName(''); setPhone(''); setMessage(''); setAccepted(false); setErrors({}); setOpen(false); }}
+                  className="mt-2 flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold text-white transition-all hover:scale-105 active:scale-95"
+                  style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)' }}
+                >
+                  <img src={whatsappIcon} alt="" className="h-5 w-5 object-contain" />
+                  Ir agora para o WhatsApp
+                </button>
               </div>
-            </div>
+            ) : (
+              /* ── Form body ── */
+              <div className="space-y-4 px-5 pb-6 pt-5 sm:px-6">
+
+                {/* Nome */}
+                <div>
+                  <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-foreground/80" htmlFor="wab-name">
+                    <User className="h-3.5 w-3.5 text-emerald-600/70" />
+                    Nome
+                  </label>
+                  <input
+                    id="wab-name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => { setName(e.target.value); setErrors(prev => ({ ...prev, name: undefined })); }}
+                    placeholder="Seu nome completo"
+                    className={`${inputBase} ${errors.name ? errorInput : normalInput}`}
+                    maxLength={100}
+                  />
+                  {errors.name && (
+                    <p className="mt-1 text-[11px] text-destructive animate-in fade-in slide-in-from-top-1 duration-200">{errors.name}</p>
+                  )}
+                </div>
+
+                {/* Telefone */}
+                <div>
+                  <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-foreground/80" htmlFor="wab-phone">
+                    <Phone className="h-3.5 w-3.5 text-emerald-600/70" />
+                    Telefone / WhatsApp
+                  </label>
+                  <input
+                    id="wab-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => { setPhone(applyPhoneMask(e.target.value)); setErrors(prev => ({ ...prev, phone: undefined })); }}
+                    placeholder="(11) 99999-9999"
+                    className={`${inputBase} ${errors.phone ? errorInput : normalInput}`}
+                    inputMode="numeric"
+                  />
+                  {errors.phone && (
+                    <p className="mt-1 text-[11px] text-destructive animate-in fade-in slide-in-from-top-1 duration-200">{errors.phone}</p>
+                  )}
+                </div>
+
+                {/* Mensagem */}
+                <div>
+                  <label className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-foreground/80" htmlFor="wab-msg">
+                    <MessageSquare className="h-3.5 w-3.5 text-emerald-600/70" />
+                    Mensagem
+                  </label>
+                  <textarea
+                    id="wab-msg"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Descreva o que precisa..."
+                    rows={3}
+                    maxLength={500}
+                    className={`${inputBase} ${normalInput} resize-none`}
+                  />
+                </div>
+
+                {/* Checkbox LGPD */}
+                <label className="flex items-start gap-2.5 cursor-pointer group/check pt-1">
+                  <div className="relative mt-0.5">
+                    <input
+                      type="checkbox"
+                      checked={accepted}
+                      onChange={(e) => { setAccepted(e.target.checked); setErrors(prev => ({ ...prev, accepted: undefined })); }}
+                      className="peer sr-only"
+                    />
+                    <div
+                      className={`flex h-[18px] w-[18px] items-center justify-center rounded-md border-2 transition-all duration-200 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 ${errors.accepted ? 'border-destructive' : 'border-muted-foreground/30 group-hover/check:border-muted-foreground/50'}`}
+                      style={{ backdropFilter: 'blur(4px)' }}
+                    >
+                      {accepted && (
+                        <svg className="h-3 w-3 text-white animate-in zoom-in duration-150" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-[11px] leading-relaxed text-muted-foreground sm:text-xs">
+                    Li e aceito a{' '}
+                    <a href={privacyUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-600 underline decoration-emerald-600/30 underline-offset-2 hover:text-emerald-500 transition-colors">
+                      Política de Privacidade
+                    </a>{' '}
+                    e os{' '}
+                    <a href={termsUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-emerald-600 underline decoration-emerald-600/30 underline-offset-2 hover:text-emerald-500 transition-colors">
+                      Termos de Uso
+                    </a>
+                  </span>
+                </label>
+                {errors.accepted && (
+                  <div className="ml-7 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                    <span className="text-sm font-semibold text-destructive">⚠️ {errors.accepted}</span>
+                  </div>
+                )}
+
+                {/* CTA */}
+                <button
+                  onClick={handleSubmit}
+                  disabled={sending}
+                  className="group/btn relative mt-2 flex h-12 w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl text-sm font-bold text-white transition-all duration-300 hover:shadow-[0_4px_24px_rgba(37,211,102,0.4)] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed sm:h-[52px] sm:text-[15px]"
+                  style={{ background: 'linear-gradient(135deg, #25D366 0%, #128C7E 100%)' }}
+                >
+                  <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+                  {sending ? (
+                    <>
+                      <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                      </svg>
+                      Abrindo WhatsApp…
+                    </>
+                  ) : (
+                    <>
+                      <img src={whatsappIcon} alt="" className="h-5 w-5 object-contain" />
+                      Iniciar Conversa
+                    </>
+                  )}
+                </button>
+
+                {/* Security badge */}
+                <div className="flex items-center justify-center gap-1.5 pt-1">
+                  <ShieldCheck className="h-3 w-3 text-muted-foreground/40" />
+                  <span className="text-[10px] text-muted-foreground/40 font-medium">Seus dados estão protegidos</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
