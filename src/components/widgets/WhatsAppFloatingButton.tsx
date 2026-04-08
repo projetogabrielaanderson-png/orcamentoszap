@@ -133,7 +133,7 @@ export function WhatsAppFloatingButton({
           >
             {/* Header */}
             <div
-              className="relative overflow-hidden rounded-t-3xl px-5 pb-5 pt-6 sm:rounded-t-2xl sm:px-6"
+              className="relative overflow-hidden rounded-t-2xl px-5 pb-5 pt-6 sm:px-6"
               style={{ background: 'linear-gradient(135deg, rgba(7,94,84,0.95) 0%, rgba(18,140,126,0.95) 100%)' }}
             >
               {/* Decorative blurs */}
