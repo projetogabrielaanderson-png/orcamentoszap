@@ -33,7 +33,10 @@ export function WhatsAppFloatingButton({
   const [accepted, setAccepted] = useState(false);
   const [errors, setErrors] = useState<{ name?: string; phone?: string; accepted?: string }>({});
   const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [countdown, setCountdown] = useState(5);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const whatsappUrlRef = useRef('');
 
   useEffect(() => {
     if (!open) return;
