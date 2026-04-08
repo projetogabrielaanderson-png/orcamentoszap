@@ -102,7 +102,7 @@ fetch('${edgeEndpoint}',{method:'POST',headers:{'Content-Type':'application/json
 var msg=encodeURIComponent('Olá! Meu nome é '+nm+'.\\n'+(mg?mg+'\\n':'')+'Tel: +'+ph);
 var url=/Android|iPhone|iPad/i.test(navigator.userAgent)?'https://wa.me/${whatsappNumber}?text='+msg:'https://web.whatsapp.com/send?phone=${whatsappNumber}&text='+msg;
 window.open(url,'_blank');
-setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s.innerHTML='<img src="https://cdn.jsdelivr.net/gh/nicofratini/testnico@main/iconzap.webp" alt="" style="width:20px;height:20px;object-fit:contain"> Iniciar Conversa'},500);
+setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s.innerHTML='<img src="https://site.eletricista.maringa.br/iconzap.png" alt="" style="width:20px;height:20px;object-fit:contain"> Iniciar Conversa'},500);
 };
 })();
 </script>`;
