@@ -21,13 +21,10 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .wb:hover{transform:scale(1.1)}.wb:active{transform:scale(.95)}
 .wb img{width:36px;height:36px;object-fit:contain;transition:transform .3s}.wb:hover img{transform:rotate(15deg)}
 @keyframes wp{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.4)}70%{box-shadow:0 0 0 16px rgba(37,211,102,0)}}
-.wo{position:fixed;inset:0;z-index:10000;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:0}
+.wo{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:16px}
 .wo.open{display:flex}
-@media(min-width:640px){.wo{align-items:center;padding:16px}}
-.wm{width:100%;max-width:420px;border-radius:24px 24px 0 0;overflow:hidden;background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.45);box-shadow:0 8px 60px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.6);animation:wz .3s ease;font-family:system-ui,sans-serif}
-@media(min-width:640px){.wm{border-radius:16px}}
-@keyframes wz{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
-@media(min-width:640px){@keyframes wz{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}}
+.wm{width:90vw;max-width:420px;max-height:80vh;overflow-y:auto;border-radius:16px;background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.45);box-shadow:0 8px 60px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.6);animation:wz .3s ease;font-family:system-ui,sans-serif}
+@keyframes wz{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
 .wh{padding:20px 24px;background:linear-gradient(135deg,rgba(7,94,84,.95),rgba(18,140,126,.95));display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
 .wh::before{content:'';position:absolute;right:-32px;top:-32px;width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.1);filter:blur(8px)}
 .wh h2{font-size:15px;font-weight:600;color:#fff;margin:0}
