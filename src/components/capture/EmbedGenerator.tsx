@@ -60,7 +60,7 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .wsc svg{width:12px;height:12px}
 @media(max-width:639px){.wm{max-height:95dvh;overflow-y:auto}}
 </style>
-<button class="wb" id="wB"><img src="https://site.eletricista.maringa.br/iconzap.png" alt="WhatsApp"></button>
+<button class="wb" id="wB"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="WhatsApp"></button>
 <div class="wo" id="wO">
 <div class="wm">
 <div class="wh">
