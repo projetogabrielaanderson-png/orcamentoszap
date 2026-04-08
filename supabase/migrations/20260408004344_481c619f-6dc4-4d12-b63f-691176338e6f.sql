@@ -1,0 +1,1 @@
+ALTER TABLE public.form_configs DROP CONSTRAINT form_configs_user_id_category_id_key;
