@@ -31,6 +31,7 @@ export interface FormConfig {
   logo_url: string;
   custom_fields: CustomField[];
   is_active: boolean;
+  whatsapp_number: string;
 }
 
 interface FormEditorProps {
