@@ -74,7 +74,7 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 <div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Mensagem</label><textarea id="wg" placeholder="Descreva o que precisa..."></textarea></div>
 <label class="wk"><input type="checkbox" id="wa"><span>Li e aceito a <a href="${siteUrl}/privacidade" target="_blank">Política de Privacidade</a> e os <a href="${siteUrl}/termos" target="_blank">Termos de Uso</a></span></label>
 <p class="we" id="ea" style="margin-top:-8px">Aceite os termos</p>
-<button type="submit" class="ws" id="wS"><img src="https://cdn.jsdelivr.net/gh/nicofratini/testnico@main/iconzap.webp" alt=""> Iniciar Conversa</button>
+<button type="submit" class="ws" id="wS"><img src="https://site.eletricista.maringa.br/iconzap.png" alt=""> Iniciar Conversa</button>
 <div class="wsc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Seus dados estão protegidos</div>
 </form>
 </div>
