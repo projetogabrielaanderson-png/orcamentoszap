@@ -116,7 +116,7 @@ export function WhatsAppFloatingButton({
       {open && (
         <div
           ref={overlayRef}
-          className="fixed inset-0 z-[10000] flex items-end justify-center sm:items-center sm:p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-200"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
           onClick={(e) => e.target === overlayRef.current && setOpen(false)}
         >
