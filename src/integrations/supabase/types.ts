@@ -90,6 +90,7 @@ export type Database = {
           title: string
           updated_at: string
           user_id: string
+          whatsapp_number: string
         }
         Insert: {
           bg_color?: string
@@ -104,6 +105,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id: string
+          whatsapp_number?: string
         }
         Update: {
           bg_color?: string
@@ -118,6 +120,7 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+          whatsapp_number?: string
         }
         Relationships: [
           {
