@@ -90,10 +90,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
   const handleSendWhatsApp = (pro: typeof professionals[0]) => {
     const msg = encodeURIComponent(getMessageContent(pro));
     const phone = formatPhone(pro.whatsapp);
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    const url = isMobile
-      ? `https://wa.me/${phone}?text=${msg}`
-      : `https://web.whatsapp.com/send?phone=${phone}&text=${msg}`;
+    const url = `https://wa.me/${phone}?text=${msg}`;
     window.open(url, '_blank');
     assignProfessional(lead.id, pro.id);
     if (user) logLeadActivity(lead.id, user.id, 'Encaminhado para profissional', pro.name);
