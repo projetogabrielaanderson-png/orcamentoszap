@@ -43,4 +43,4 @@ export const STATUS_CONFIG: Record<LeadStatus, { label: string; color: string; b
   done: { label: 'Finalizado', color: 'status-done', bgClass: 'bg-status-done/10', textClass: 'text-status-done' },
 };
 
-export const KANBAN_COLUMNS: LeadStatus[] = ['new', 'in_progress', 'waiting', 'done'];
+export const KANBAN_COLUMNS: LeadStatus[] = ['new', 'in_progress', 'waiting'];
