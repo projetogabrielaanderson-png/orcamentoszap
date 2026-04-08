@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { X, MessageCircle, User, Phone, Send, ShieldCheck } from 'lucide-react';
+import { X, User, Phone, Send, ShieldCheck } from 'lucide-react';
+import whatsappIcon from '@/assets/iconzap.webp';
 
 interface WhatsAppFloatingButtonProps {
   whatsappNumber: string;
@@ -85,10 +86,7 @@ export function WhatsAppFloatingButton({
         className="group fixed bottom-5 right-5 z-[9999] flex h-[60px] w-[60px] items-center justify-center rounded-full shadow-[0_4px_20px_rgba(37,211,102,0.4)] transition-all duration-300 hover:scale-110 hover:shadow-[0_6px_28px_rgba(37,211,102,0.5)] active:scale-95 sm:bottom-6 sm:right-6 sm:h-16 sm:w-16"
         style={{ backgroundColor: '#25D366' }}
       >
-        <svg className="h-7 w-7 sm:h-8 sm:w-8 transition-transform duration-300 group-hover:rotate-[15deg]" viewBox="0 0 24 24" fill="white">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
-          <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a8 8 0 01-4.243-1.214l-.257-.154-2.874.854.854-2.874-.154-.257A8 8 0 1112 20z" />
-        </svg>
+        <img src={whatsappIcon} alt="WhatsApp" className="h-9 w-9 sm:h-10 sm:w-10 transition-transform duration-300 group-hover:rotate-[15deg] object-contain" />
         {/* Pulse rings */}
         <span className="absolute inset-0 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite] rounded-full opacity-20" style={{ backgroundColor: '#25D366' }} />
       </button>
