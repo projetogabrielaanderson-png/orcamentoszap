@@ -96,6 +96,7 @@ export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
         logo_url: form.logo_url.trim(),
         custom_fields: JSON.parse(JSON.stringify(form.custom_fields.filter(f => f.label.trim()))),
         is_active: form.is_active,
+        whatsapp_number: form.whatsapp_number.replace(/\D/g, ''),
       };
 
       if (form.id) {
