@@ -31,6 +31,7 @@ export interface FormConfig {
   logo_url: string;
   custom_fields: CustomField[];
   is_active: boolean;
+  whatsapp_number: string;
 }
 
 interface FormEditorProps {
@@ -47,6 +48,7 @@ const defaultConfig: Omit<FormConfig, 'user_id' | 'category_id'> = {
   logo_url: '',
   custom_fields: [],
   is_active: true,
+  whatsapp_number: '',
 };
 
 export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
@@ -94,6 +96,7 @@ export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
         logo_url: form.logo_url.trim(),
         custom_fields: JSON.parse(JSON.stringify(form.custom_fields.filter(f => f.label.trim()))),
         is_active: form.is_active,
+        whatsapp_number: form.whatsapp_number.replace(/\D/g, ''),
       };
 
       if (form.id) {
@@ -164,6 +167,11 @@ export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
               <div className="space-y-2">
                 <Label>URL do Logo (opcional)</Label>
                 <Input value={form.logo_url} onChange={e => update({ logo_url: e.target.value })} placeholder="https://..." />
+              </div>
+              <div className="space-y-2">
+                <Label>WhatsApp do Profissional *</Label>
+                <Input value={form.whatsapp_number} onChange={e => update({ whatsapp_number: e.target.value })} placeholder="5544999990000" />
+                <p className="text-xs text-muted-foreground">Número para onde o lead será redirecionado após enviar o formulário</p>
               </div>
               <div className="flex items-center gap-2">
                 <Switch checked={form.is_active} onCheckedChange={v => update({ is_active: v })} />

@@ -1,0 +1,1 @@
+ALTER TABLE public.form_configs ADD COLUMN whatsapp_number text NOT NULL DEFAULT '';
