@@ -486,6 +486,29 @@ const LeadFormPage = () => {
 
   // ── Success phase ──
   if (phase === 'done') {
+    const whatsappNumber = formConfig.whatsapp_number.replace(/\D/g, '');
+    const hasWhatsApp = whatsappNumber.length >= 10;
+
+    const openWhatsApp = () => {
+      const phone = whatsappNumber.startsWith('55') ? whatsappNumber : `55${whatsappNumber}`;
+      const msg = encodeURIComponent(
+        `Olá! Meu nome é ${values.name}, meu telefone é ${values.phone}. ${values.message || ''}`.trim()
+      );
+      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+      const url = isMobile
+        ? `https://wa.me/${phone}?text=${msg}`
+        : `https://web.whatsapp.com/send?phone=${phone}&text=${msg}`;
+      window.open(url, '_blank');
+    };
+
+    // Auto-redirect after 3 seconds if whatsapp is configured
+    useEffect(() => {
+      if (hasWhatsApp) {
+        const timer = setTimeout(openWhatsApp, 3000);
+        return () => clearTimeout(timer);
+      }
+    }, []);
+
     return (
       <div className="relative flex min-h-[100dvh] items-center justify-center p-4 overflow-hidden" style={{ backgroundColor: formConfig.bg_color, backgroundImage: 'url(/images/form-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         {/* Animated background loader */}
@@ -507,9 +530,15 @@ const LeadFormPage = () => {
           <p className="mt-4 text-gray-500 text-base">
             Recebemos sua solicitação, <span className="font-semibold text-gray-700">{values.name}</span>.
           </p>
-          <p className="mt-1 text-sm text-gray-400">
-            Um profissional entrará em contato pelo WhatsApp em breve.
-          </p>
+          {hasWhatsApp ? (
+            <p className="mt-1 text-sm text-gray-400">
+              Você será redirecionado para o WhatsApp em instantes...
+            </p>
+          ) : (
+            <p className="mt-1 text-sm text-gray-400">
+              Um profissional entrará em contato pelo WhatsApp em breve.
+            </p>
+          )}
           <div className="mt-8 rounded-2xl border-2 p-5 text-left text-sm animate-in slide-in-from-bottom-4 duration-700 delay-300" style={{ borderColor: `${primaryColor}30`, backgroundColor: `${primaryColor}05` }}>
             <p className="font-semibold mb-3" style={{ color: primaryColor }}>Resumo da solicitação:</p>
             <div className="space-y-2 text-gray-600">
@@ -519,6 +548,16 @@ const LeadFormPage = () => {
               {values.message && <p className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-gray-400" /> {values.message}</p>}
             </div>
           </div>
+          {hasWhatsApp && (
+            <button
+              onClick={openWhatsApp}
+              className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl py-3 text-white font-semibold text-base transition-transform active:scale-95"
+              style={{ backgroundColor: '#25D366' }}
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.38 0-4.591-.686-6.462-1.871l-.45-.274-2.633.883.883-2.633-.274-.45A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+              Abrir WhatsApp Agora
+            </button>
+          )}
         </div>
       </div>
     );
