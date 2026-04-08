@@ -19,6 +19,7 @@ interface FormConfigData {
   bg_color: string;
   logo_url: string;
   custom_fields: CustomField[];
+  whatsapp_number: string;
 }
 
 const defaultFormConfig: FormConfigData = {
