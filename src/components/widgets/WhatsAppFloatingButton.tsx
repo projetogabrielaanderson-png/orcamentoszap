@@ -116,13 +116,13 @@ export function WhatsAppFloatingButton({
       {open && (
         <div
           ref={overlayRef}
-          className="fixed inset-0 z-[10000] flex items-end justify-center sm:items-center sm:p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 z-[10000] flex items-center justify-center p-4 animate-in fade-in duration-200"
           style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
           onClick={(e) => e.target === overlayRef.current && setOpen(false)}
         >
           {/* Glassmorphism card */}
           <div
-            className="w-full max-h-[95dvh] overflow-y-auto rounded-t-3xl sm:max-w-[420px] sm:rounded-2xl animate-in slide-in-from-bottom-8 sm:zoom-in-95 fade-in duration-300"
+            className="w-[90vw] max-w-[420px] max-h-[80vh] overflow-y-auto rounded-2xl animate-in zoom-in-95 fade-in duration-300"
             style={{
               background: 'rgba(255,255,255,0.72)',
               backdropFilter: 'blur(20px) saturate(180%)',
@@ -133,15 +133,14 @@ export function WhatsAppFloatingButton({
           >
             {/* Header */}
             <div
-              className="relative overflow-hidden rounded-t-3xl px-5 pb-5 pt-6 sm:rounded-t-2xl sm:px-6"
+              className="relative overflow-hidden rounded-t-2xl px-5 pb-5 pt-6 sm:px-6"
               style={{ background: 'linear-gradient(135deg, rgba(7,94,84,0.95) 0%, rgba(18,140,126,0.95) 100%)' }}
             >
               {/* Decorative blurs */}
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
               <div className="absolute -left-6 bottom--2 h-20 w-20 rounded-full bg-white/10 blur-lg" />
 
-              {/* Drag indicator (mobile) */}
-              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/30 sm:hidden" />
+              {/* Removed drag indicator - no longer bottom sheet */}
 
               <div className="relative flex items-center gap-3.5">
                 {/* Avatar glass */}
