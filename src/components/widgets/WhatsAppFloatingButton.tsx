@@ -268,7 +268,9 @@ export function WhatsAppFloatingButton({
                 </span>
               </label>
               {errors.accepted && (
-                <p className="ml-7 text-[11px] text-destructive animate-in fade-in slide-in-from-top-1 duration-200">{errors.accepted}</p>
+                <div className="ml-7 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <span className="text-sm font-semibold text-destructive">⚠️ {errors.accepted}</span>
+                </div>
               )}
 
               {/* CTA */}
