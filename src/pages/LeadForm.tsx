@@ -484,30 +484,30 @@ const LeadFormPage = () => {
     );
   }
 
+  // WhatsApp redirect logic for success phase
+  const whatsappNumber = formConfig.whatsapp_number.replace(/\D/g, '');
+  const hasWhatsApp = whatsappNumber.length >= 10;
+
+  const openWhatsApp = useCallback(() => {
+    const phone = whatsappNumber.startsWith('55') ? whatsappNumber : `55${whatsappNumber}`;
+    const msg = encodeURIComponent(
+      `Olá! Meu nome é ${values.name}, meu telefone é ${values.phone}. ${values.message || ''}`.trim()
+    );
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+    const url = isMobile
+      ? `https://wa.me/${phone}?text=${msg}`
+      : `https://web.whatsapp.com/send?phone=${phone}&text=${msg}`;
+    window.open(url, '_blank');
+  }, [whatsappNumber, values.name, values.phone, values.message]);
+
+  useEffect(() => {
+    if (phase === 'done' && hasWhatsApp) {
+      const timer = setTimeout(openWhatsApp, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [phase, hasWhatsApp, openWhatsApp]);
+
   // ── Success phase ──
-  if (phase === 'done') {
-    const whatsappNumber = formConfig.whatsapp_number.replace(/\D/g, '');
-    const hasWhatsApp = whatsappNumber.length >= 10;
-
-    const openWhatsApp = () => {
-      const phone = whatsappNumber.startsWith('55') ? whatsappNumber : `55${whatsappNumber}`;
-      const msg = encodeURIComponent(
-        `Olá! Meu nome é ${values.name}, meu telefone é ${values.phone}. ${values.message || ''}`.trim()
-      );
-      const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-      const url = isMobile
-        ? `https://wa.me/${phone}?text=${msg}`
-        : `https://web.whatsapp.com/send?phone=${phone}&text=${msg}`;
-      window.open(url, '_blank');
-    };
-
-    // Auto-redirect after 3 seconds if whatsapp is configured
-    useEffect(() => {
-      if (hasWhatsApp) {
-        const timer = setTimeout(openWhatsApp, 3000);
-        return () => clearTimeout(timer);
-      }
-    }, []);
 
     return (
       <div className="relative flex min-h-[100dvh] items-center justify-center p-4 overflow-hidden" style={{ backgroundColor: formConfig.bg_color, backgroundImage: 'url(/images/form-bg.png)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
