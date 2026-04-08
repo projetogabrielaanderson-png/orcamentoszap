@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { X, MessageCircle, User, Phone, Send, ShieldCheck } from 'lucide-react';
+import { X, User, Phone, Send, ShieldCheck } from 'lucide-react';
+import whatsappIcon from '@/assets/iconzap.webp';
 
 interface WhatsAppFloatingButtonProps {
   whatsappNumber: string;
