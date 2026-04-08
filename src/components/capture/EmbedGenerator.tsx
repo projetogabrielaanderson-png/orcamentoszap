@@ -64,7 +64,7 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 <div class="wo" id="wO">
 <div class="wm">
 <div class="wh">
-<div class="wav"><img src="https://cdn.jsdelivr.net/gh/nicofratini/testnico@main/iconzap.webp" alt=""></div>
+<div class="wav"><img src="https://site.eletricista.maringa.br/iconzap.png" alt=""></div>
 <div><h2>${config.title}</h2><p class="st">Online agora</p></div>
 <button class="wx" id="wX">&times;</button>
 </div>
