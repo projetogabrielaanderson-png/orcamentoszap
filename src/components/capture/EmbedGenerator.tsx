@@ -69,7 +69,7 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .wok .go{display:flex;align-items:center;gap:8px;border:none;border-radius:12px;padding:12px 24px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;transition:transform .2s}
 .wok .go:hover{transform:scale(1.05)}.wok .go:active{transform:scale(.95)}
 .wok .go img{width:20px;height:20px;object-fit:contain}
-@media(max-width:639px){.wm{max-height:95dvh;overflow-y:auto}}
+
 </style>
 <button class="wb" id="wB"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="WhatsApp"></button>
 <div class="wo" id="wO">

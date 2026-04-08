@@ -140,8 +140,7 @@ export function WhatsAppFloatingButton({
               <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/10 blur-xl" />
               <div className="absolute -left-6 bottom--2 h-20 w-20 rounded-full bg-white/10 blur-lg" />
 
-              {/* Drag indicator (mobile) */}
-              <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/30 sm:hidden" />
+              {/* Removed drag indicator - no longer bottom sheet */}
 
               <div className="relative flex items-center gap-3.5">
                 {/* Avatar glass */}
