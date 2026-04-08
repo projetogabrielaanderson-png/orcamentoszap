@@ -122,7 +122,7 @@ export function WhatsAppFloatingButton({
         >
           {/* Glassmorphism card */}
           <div
-            className="w-full max-h-[95dvh] overflow-y-auto rounded-t-3xl sm:max-w-[420px] sm:rounded-2xl animate-in slide-in-from-bottom-8 sm:zoom-in-95 fade-in duration-300"
+            className="w-[90vw] max-w-[420px] max-h-[80vh] overflow-y-auto rounded-2xl animate-in zoom-in-95 fade-in duration-300"
             style={{
               background: 'rgba(255,255,255,0.72)',
               backdropFilter: 'blur(20px) saturate(180%)',
