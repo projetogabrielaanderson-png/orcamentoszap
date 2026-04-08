@@ -90,7 +90,6 @@ setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s
 })();
 </script>`;
 }
-}
 
 export function EmbedGenerator({ formConfig }: EmbedGeneratorProps) {
   const [siteUrl, setSiteUrl] = useState('https://meusite.com');
