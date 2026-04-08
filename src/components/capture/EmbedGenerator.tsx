@@ -15,50 +15,67 @@ interface EmbedGeneratorProps {
 
 function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, siteUrl: string, edgeEndpoint: string, ownerId: string) {
   const c = config.primary_color || '#075E54';
-  return `<!-- Widget WhatsApp -->
+  return `<!-- Widget WhatsApp Glassmorphism -->
 <style>
-.wb{position:fixed;bottom:24px;right:24px;z-index:9999;width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;background:#25D366;box-shadow:0 4px 16px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;transition:transform .2s;animation:wp 2s infinite}
+.wb{position:fixed;bottom:24px;right:24px;z-index:9999;width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;background:#25D366;box-shadow:0 4px 24px rgba(37,211,102,.45);display:flex;align-items:center;justify-content:center;transition:transform .2s;animation:wp 2s infinite}
 .wb:hover{transform:scale(1.1)}.wb:active{transform:scale(.95)}
+.wb img{width:36px;height:36px;object-fit:contain;transition:transform .3s}.wb:hover img{transform:rotate(15deg)}
 @keyframes wp{0%,100%{box-shadow:0 0 0 0 rgba(37,211,102,.4)}70%{box-shadow:0 0 0 16px rgba(37,211,102,0)}}
-.wo{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);padding:16px}
+.wo{position:fixed;inset:0;z-index:10000;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:0}
 .wo.open{display:flex}
-.wm{width:100%;max-width:400px;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:wz .3s ease;font-family:system-ui,sans-serif}
-@keyframes wz{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}
-.wh{padding:16px 20px;background:${c};display:flex;align-items:center;gap:12px;position:relative}
-.wh h2{font-size:16px;font-weight:600;color:#fff;margin:0}
-.wh p{font-size:12px;color:rgba(255,255,255,.8);margin:2px 0 0}
-.wh p::before{content:'';width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:4px}
-.wx{position:absolute;right:12px;top:12px;width:28px;height:28px;border:none;border-radius:50%;background:transparent;cursor:pointer;color:rgba(255,255,255,.7);font-size:20px;display:flex;align-items:center;justify-content:center}
-.wx:hover{background:rgba(255,255,255,.2);color:#fff}
-.wf{padding:20px;display:flex;flex-direction:column;gap:14px}
-.wf label{display:block;font-size:14px;font-weight:500;color:#1f2937;margin-bottom:4px}
-.wf input,.wf textarea{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;outline:none;transition:border-color .2s}
-.wf textarea{height:72px;resize:vertical}
-.wf input:focus,.wf textarea:focus{border-color:#25D366;box-shadow:0 0 0 3px rgba(37,211,102,.15)}
-.wf .er{border-color:#ef4444!important}
-.we{font-size:12px;color:#ef4444;margin-top:2px;display:none}
+@media(min-width:640px){.wo{align-items:center;padding:16px}}
+.wm{width:100%;max-width:420px;border-radius:24px 24px 0 0;overflow:hidden;background:rgba(255,255,255,.72);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border:1px solid rgba(255,255,255,.45);box-shadow:0 8px 60px rgba(0,0,0,.12),inset 0 1px 0 rgba(255,255,255,.6);animation:wz .3s ease;font-family:system-ui,sans-serif}
+@media(min-width:640px){.wm{border-radius:16px}}
+@keyframes wz{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+@media(min-width:640px){@keyframes wz{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}}
+.wh{padding:20px 24px;background:linear-gradient(135deg,rgba(7,94,84,.95),rgba(18,140,126,.95));display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.wh::before{content:'';position:absolute;right:-32px;top:-32px;width:112px;height:112px;border-radius:50%;background:rgba(255,255,255,.1);filter:blur(8px)}
+.wh h2{font-size:15px;font-weight:600;color:#fff;margin:0}
+.wh .st{font-size:11px;color:rgba(167,243,208,.9);margin:4px 0 0;display:flex;align-items:center;gap:6px}
+.wh .st::before{content:'';width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px rgba(52,211,153,.6)}
+.wav{width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.wav img{width:28px;height:28px;object-fit:contain}
+.wav::after{content:'';position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:#4ade80;border:2px solid #075E54}
+.wx{position:absolute;right:12px;top:12px;width:32px;height:32px;border:none;border-radius:50%;background:transparent;cursor:pointer;color:rgba(255,255,255,.6);font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.wx:hover{background:rgba(255,255,255,.15);color:#fff}
+.wf{padding:20px 24px 24px;display:flex;flex-direction:column;gap:16px}
+.wf label{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:rgba(0,0,0,.6);margin-bottom:6px}
+.wf label svg{width:14px;height:14px;color:rgba(5,150,105,.7)}
+.wf input,.wf textarea{width:100%;padding:12px 16px;border:1px solid rgba(255,255,255,.4);border-radius:12px;font-size:14px;outline:none;transition:all .2s;background:rgba(255,255,255,.6);backdrop-filter:blur(4px);color:#1f2937;box-sizing:border-box}
+.wf textarea{height:72px;resize:none}
+.wf input::placeholder,.wf textarea::placeholder{color:rgba(0,0,0,.3)}
+.wf input:focus,.wf textarea:focus{background:rgba(255,255,255,.8);border-color:#25D366;box-shadow:0 0 0 3px rgba(37,211,102,.15)}
+.wf .er{border-color:#ef4444!important;box-shadow:0 0 0 2px rgba(239,68,68,.1)!important}
+.we{font-size:11px;color:#ef4444;margin-top:4px;display:none}
 .we.s{display:block}
-.wk{display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-size:12px;color:#6b7280}
-.wk input{margin-top:2px;accent-color:#25D366}
-.wk a{color:${c};text-decoration:underline}
-.ws{width:100%;height:44px;border:none;border-radius:8px;background:#25D366;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:filter .2s}
-.ws:hover{filter:brightness(1.1)}.ws:disabled{opacity:.6;cursor:not-allowed}
-@media(max-width:480px){.wm{max-width:100%;border-radius:12px}.wo{padding:8px}}
+.wk{display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:11px;color:#6b7280;line-height:1.5}
+.wk input{margin-top:2px;accent-color:#25D366;width:18px;height:18px;flex-shrink:0}
+.wk a{color:#059669;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+.wk a:hover{color:#10b981}
+.ws{width:100%;height:48px;border:none;border-radius:12px;background:linear-gradient(135deg,#25D366,#128C7E);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:10px;position:relative;overflow:hidden;margin-top:4px}
+.ws:hover{box-shadow:0 4px 24px rgba(37,211,102,.4)}.ws:active{transform:scale(.98)}.ws:disabled{opacity:.6;cursor:not-allowed}
+.ws::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);transform:translateX(-100%);transition:transform .7s}.ws:hover::after{transform:translateX(100%)}
+.ws img{width:20px;height:20px;object-fit:contain}
+.wsc{display:flex;align-items:center;justify-content:center;gap:6px;padding-top:4px;font-size:10px;color:rgba(0,0,0,.25);font-weight:500}
+.wsc svg{width:12px;height:12px}
+@media(max-width:639px){.wm{max-height:95dvh;overflow-y:auto}}
 </style>
-<button class="wb" id="wB">💬</button>
+<button class="wb" id="wB"><img src="https://cdn.jsdelivr.net/gh/nicofratini/testnico@main/iconzap.webp" alt="WhatsApp"></button>
 <div class="wo" id="wO">
 <div class="wm">
 <div class="wh">
-<div><h2>${config.title}</h2><p>Online agora</p></div>
+<div class="wav"><img src="https://cdn.jsdelivr.net/gh/nicofratini/testnico@main/iconzap.webp" alt=""></div>
+<div><h2>${config.title}</h2><p class="st">Online agora</p></div>
 <button class="wx" id="wX">&times;</button>
 </div>
 <form class="wf" id="wF" novalidate>
-<div><label>Nome</label><input type="text" id="wn" placeholder="Seu nome completo"><p class="we" id="en">Informe seu nome</p></div>
-<div><label>Telefone / WhatsApp</label><input type="tel" id="wp" placeholder="(11) 99999-9999" inputmode="numeric"><p class="we" id="ep">Telefone inválido</p></div>
-<div><label>Mensagem</label><textarea id="wg" placeholder="Descreva o que precisa..."></textarea></div>
+<div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Nome</label><input type="text" id="wn" placeholder="Seu nome completo"><p class="we" id="en">Informe seu nome</p></div>
+<div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>Telefone / WhatsApp</label><input type="tel" id="wp" placeholder="(11) 99999-9999" inputmode="numeric"><p class="we" id="ep">Telefone inválido</p></div>
+<div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Mensagem</label><textarea id="wg" placeholder="Descreva o que precisa..."></textarea></div>
 <label class="wk"><input type="checkbox" id="wa"><span>Li e aceito a <a href="${siteUrl}/privacidade" target="_blank">Política de Privacidade</a> e os <a href="${siteUrl}/termos" target="_blank">Termos de Uso</a></span></label>
-<p class="we" id="ea" style="margin-top:-6px">Aceite os termos</p>
-<button type="submit" class="ws" id="wS">💬 Iniciar Conversa</button>
+<p class="we" id="ea" style="margin-top:-8px">Aceite os termos</p>
+<button type="submit" class="ws" id="wS"><img src="https://cdn.jsdelivr.net/gh/nicofratini/testnico@main/iconzap.webp" alt=""> Iniciar Conversa</button>
+<div class="wsc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Seus dados estão protegidos</div>
 </form>
 </div>
 </div>
@@ -79,16 +96,17 @@ if(!nm){$('en').classList.add('s');n.classList.add('er');v=0}
 if(dg.length<10||dg.length>11){$('ep').classList.add('s');p.classList.add('er');v=0}
 if(!a.checked){$('ea').classList.add('s');v=0}
 if(!v)return;
-busy=1;s.disabled=1;s.textContent='Abrindo WhatsApp…';
+busy=1;s.disabled=1;s.innerHTML='<svg style="width:20px;height:20px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none"><circle opacity=".25" cx="12" cy="12" r="10" stroke="white" stroke-width="4"/><path opacity=".75" fill="white" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg> Abrindo WhatsApp…';
 var ph=dg.indexOf('55')===0?dg:'55'+dg;
 fetch('${edgeEndpoint}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nm,phone:ph,message:mg,user_id:'${ownerId}',category_id:'${config.category_id}',origin_url:'${siteUrl}'})}).catch(function(){});
 var msg=encodeURIComponent('Olá! Meu nome é '+nm+'.\\n'+(mg?mg+'\\n':'')+'Tel: +'+ph);
 var url=/Android|iPhone|iPad/i.test(navigator.userAgent)?'https://wa.me/${whatsappNumber}?text='+msg:'https://web.whatsapp.com/send?phone=${whatsappNumber}&text='+msg;
 window.open(url,'_blank');
-setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s.textContent='💬 Iniciar Conversa'},500);
+setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s.innerHTML='<img src="https://cdn.jsdelivr.net/gh/nicofratini/testnico@main/iconzap.webp" alt="" style="width:20px;height:20px;object-fit:contain"> Iniciar Conversa'},500);
 };
 })();
 </script>`;
+}
 }
 
 export function EmbedGenerator({ formConfig }: EmbedGeneratorProps) {
