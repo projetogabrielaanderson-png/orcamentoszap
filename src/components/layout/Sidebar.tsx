@@ -43,7 +43,7 @@ export function AppSidebar() {
         </div>
         {!collapsed && (
           <span className="text-lg font-bold text-sidebar-foreground tracking-tight">
-            LeadFlow
+            CRM ZAP
           </span>
         )}
       </div>
