@@ -29,6 +29,7 @@ const defaultFormConfig: FormConfigData = {
   bg_color: '#f0f4ff',
   logo_url: '',
   custom_fields: [],
+  whatsapp_number: '',
 };
 
 const DAYS_PT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
