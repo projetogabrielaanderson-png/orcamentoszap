@@ -60,11 +60,11 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .wsc svg{width:12px;height:12px}
 @media(max-width:639px){.wm{max-height:95dvh;overflow-y:auto}}
 </style>
-<button class="wb" id="wB"><img src="https://site.eletricista.maringa.br/iconzap.png" alt="WhatsApp"></button>
+<button class="wb" id="wB"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="WhatsApp"></button>
 <div class="wo" id="wO">
 <div class="wm">
 <div class="wh">
-<div class="wav"><img src="https://site.eletricista.maringa.br/iconzap.png" alt=""></div>
+<div class="wav"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt=""></div>
 <div><h2>${config.title}</h2><p class="st">Online agora</p></div>
 <button class="wx" id="wX">&times;</button>
 </div>
@@ -74,7 +74,7 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 <div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Mensagem</label><textarea id="wg" placeholder="Descreva o que precisa..."></textarea></div>
 <label class="wk"><input type="checkbox" id="wa"><span>Li e aceito a <a href="${siteUrl}/privacidade" target="_blank">Política de Privacidade</a> e os <a href="${siteUrl}/termos" target="_blank">Termos de Uso</a></span></label>
 <p class="we" id="ea" style="margin-top:-8px">Aceite os termos</p>
-<button type="submit" class="ws" id="wS"><img src="https://site.eletricista.maringa.br/iconzap.png" alt=""> Iniciar Conversa</button>
+<button type="submit" class="ws" id="wS"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt=""> Iniciar Conversa</button>
 <div class="wsc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Seus dados estão protegidos</div>
 </form>
 </div>
@@ -102,7 +102,7 @@ fetch('${edgeEndpoint}',{method:'POST',headers:{'Content-Type':'application/json
 var msg=encodeURIComponent('Olá! Meu nome é '+nm+'.\\n'+(mg?mg+'\\n':'')+'Tel: +'+ph);
 var url=/Android|iPhone|iPad/i.test(navigator.userAgent)?'https://wa.me/${whatsappNumber}?text='+msg:'https://web.whatsapp.com/send?phone=${whatsappNumber}&text='+msg;
 window.open(url,'_blank');
-setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s.innerHTML='<img src="https://site.eletricista.maringa.br/iconzap.png" alt="" style="width:20px;height:20px;object-fit:contain"> Iniciar Conversa'},500);
+setTimeout(function(){f.reset();o.classList.remove('open');busy=0;s.disabled=0;s.innerHTML='<img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="" style="width:20px;height:20px;object-fit:contain"> Iniciar Conversa'},500);
 };
 })();
 </script>`;
