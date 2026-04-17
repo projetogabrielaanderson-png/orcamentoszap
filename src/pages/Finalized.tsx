@@ -108,13 +108,17 @@ export default function FinalizedPage() {
   }, [finalizedLeads]);
 
   const handleExportCSV = () => {
-    const headers = ['Nome', 'Telefone', 'Mensagem', 'Categoria', 'Profissional', 'Finalizado em', 'Tags'];
+    const headers = ['Nome', 'Telefone', 'Mensagem', 'Categoria', 'Profissional', 'Resultado', 'Valor Orçamento', 'Valor Fechado', 'Motivo Perda', 'Finalizado em', 'Tags'];
     const rows = filtered.map(l => [
       l.name,
       l.phone,
       l.message.replace(/"/g, '""'),
       getCategoryName(l.category_id),
       l.professional_id ? getProfessionalName(l.professional_id) : '-',
+      l.outcome === 'won' ? 'Ganho' : l.outcome === 'lost' ? 'Perdido' : '-',
+      l.quote_value != null ? Number(l.quote_value).toFixed(2).replace('.', ',') : '',
+      l.closed_value != null ? Number(l.closed_value).toFixed(2).replace('.', ',') : '',
+      (l.lost_reason || '').replace(/"/g, '""'),
       format(new Date(l.updated_at), 'dd/MM/yyyy HH:mm'),
       (l.tags || []).join(', '),
     ]);

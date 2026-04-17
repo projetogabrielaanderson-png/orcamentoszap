@@ -1,11 +1,14 @@
 import { useCRM } from '@/contexts/CRMContext';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, Users, Tag, UserCheck } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Trophy } from 'lucide-react';
 import { isToday, isThisMonth, isThisWeek, subDays } from 'date-fns';
 
+const formatBRL = (n: number) =>
+  n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+
 export function KPICards() {
-  const { leads, professionals, categories } = useCRM();
+  const { leads } = useCRM();
 
   const leadsToday = leads.filter(l => isToday(new Date(l.created_at))).length;
   const leadsMonth = leads.filter(l => isThisMonth(new Date(l.created_at))).length;
@@ -21,22 +24,23 @@ export function KPICards() {
     ? (((leadsToday - leadsYesterday) / leadsYesterday) * 100).toFixed(0)
     : leadsToday > 0 ? '+100' : '0';
 
-  // Conversion rate
-  const doneLeads = leads.filter(l => l.status === 'done').length;
-  const conversionRate = leads.length > 0 ? ((doneLeads / leads.length) * 100).toFixed(1) : '0';
+  // Pipeline financeiro
+  const wonLeads = leads.filter(l => l.outcome === 'won');
+  const lostLeads = leads.filter(l => l.outcome === 'lost');
+  const decided = wonLeads.length + lostLeads.length;
+  const winRate = decided > 0 ? ((wonLeads.length / decided) * 100).toFixed(1) : '0';
 
-  // Most active category
-  const catCounts: Record<string, number> = {};
-  leads.forEach(l => { catCounts[l.category_id] = (catCounts[l.category_id] || 0) + 1; });
-  const topCatId = Object.entries(catCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
-  const topCatName = categories.find(c => c.id === topCatId)?.name || '-';
+  const wonRevenue = wonLeads.reduce((sum, l) => sum + (Number(l.closed_value) || 0), 0);
+  const wonRevenueMonth = wonLeads
+    .filter(l => isThisMonth(new Date(l.updated_at)))
+    .reduce((sum, l) => sum + (Number(l.closed_value) || 0), 0);
 
-  // Top professional
-  const proCounts: Record<string, number> = {};
-  leads.filter(l => l.professional_id).forEach(l => { proCounts[l.professional_id!] = (proCounts[l.professional_id!] || 0) + 1; });
-  const topProId = Object.entries(proCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
-  const topProName = professionals.find(p => p.id === topProId)?.name?.split(' ')[0] || '-';
-  const topProCount = topProId ? proCounts[topProId] : 0;
+  const ticketAvg = wonLeads.length > 0 ? wonRevenue / wonLeads.length : 0;
+
+  // Pipeline em aberto (orçamentos enviados sem decisão)
+  const openPipeline = leads
+    .filter(l => l.outcome == null && (Number(l.quote_value) || 0) > 0)
+    .reduce((sum, l) => sum + (Number(l.quote_value) || 0), 0);
 
   const cards = [
     {
@@ -45,31 +49,35 @@ export function KPICards() {
       change: `${Number(todayChange) >= 0 ? '+' : ''}${todayChange}%`,
       trend: Number(todayChange) >= 0 ? 'up' : 'down',
       description: 'Comparado com ontem',
-      footer: `${leadsWeek} leads esta semana`,
+      footer: `${leadsWeek} esta semana • ${leadsMonth} no mês`,
+      icon: null,
     },
     {
-      title: 'Leads no Mês',
-      value: leadsMonth.toString(),
-      change: `${leads.length} total`,
+      title: 'Receita Fechada',
+      value: formatBRL(wonRevenue),
+      change: `${wonLeads.length} ganhos`,
       trend: 'up' as const,
-      description: 'Mês atual',
-      footer: `${leads.length} leads no total`,
+      description: 'Total acumulado',
+      footer: `${formatBRL(wonRevenueMonth)} este mês`,
+      icon: <Trophy className="h-3 w-3" />,
     },
     {
       title: 'Taxa de Conversão',
-      value: `${conversionRate}%`,
-      change: `${doneLeads} finalizados`,
-      trend: Number(conversionRate) >= 30 ? 'up' : 'down',
-      description: 'Leads finalizados',
-      footer: `De ${leads.length} leads totais`,
+      value: `${winRate}%`,
+      change: `${wonLeads.length}/${decided}`,
+      trend: Number(winRate) >= 30 ? 'up' : 'down',
+      description: 'Ganhos vs decididos',
+      footer: `${lostLeads.length} perdidos • ${leads.length - decided} em aberto`,
+      icon: null,
     },
     {
-      title: 'Profissional Destaque',
-      value: topProName,
-      change: `${topProCount} leads`,
+      title: 'Ticket Médio',
+      value: formatBRL(ticketAvg),
+      change: `${formatBRL(openPipeline)}`,
       trend: 'up' as const,
-      description: 'Maior volume',
-      footer: `Categoria top: ${topCatName}`,
+      description: 'Por venda fechada',
+      footer: `Pipeline em aberto: ${formatBRL(openPipeline)}`,
+      icon: <DollarSign className="h-3 w-3" />,
     },
   ];
 
@@ -91,11 +99,7 @@ export function KPICards() {
                     : 'text-destructive border-destructive/30 bg-destructive/5'
                 }`}
               >
-                {card.trend === 'up' ? (
-                  <TrendingUp className="size-3" />
-                ) : (
-                  <TrendingDown className="size-3" />
-                )}
+                {card.icon ?? (card.trend === 'up' ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />)}
                 {card.change}
               </Badge>
             </div>

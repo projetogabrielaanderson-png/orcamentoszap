@@ -4,9 +4,11 @@ import { useCRM } from '@/contexts/CRMContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Pencil, Trash2, Star, Copy } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Plus, Pencil, Trash2, Star, Copy, Send, MessageCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { TemplateForm } from './TemplateForm';
+import type { TemplateAudience } from '@/types/crm';
 
 export interface MessageTemplate {
   id: string;
@@ -14,23 +16,33 @@ export interface MessageTemplate {
   name: string;
   content: string;
   is_default: boolean;
+  audience: TemplateAudience;
   created_at: string;
   updated_at: string;
 }
 
-const VARIABLES_HELP = [
-  { var: '{{profissional}}', desc: 'Nome do profissional' },
-  { var: '{{lead_nome}}', desc: 'Nome do lead' },
-  { var: '{{lead_telefone}}', desc: 'Telefone do lead' },
-  { var: '{{lead_mensagem}}', desc: 'Mensagem do lead' },
-  { var: '{{categoria}}', desc: 'Categoria do serviço' },
-];
+const VARIABLES_BY_AUDIENCE: Record<TemplateAudience, { var: string; desc: string }[]> = {
+  professional: [
+    { var: '{{profissional}}', desc: 'Nome do profissional' },
+    { var: '{{lead_nome}}', desc: 'Nome do lead' },
+    { var: '{{lead_telefone}}', desc: 'Telefone do lead' },
+    { var: '{{lead_mensagem}}', desc: 'Mensagem do lead' },
+    { var: '{{categoria}}', desc: 'Categoria do serviço' },
+  ],
+  client: [
+    { var: '{{lead_nome}}', desc: 'Nome do cliente' },
+    { var: '{{lead_primeiro_nome}}', desc: 'Primeiro nome do cliente' },
+    { var: '{{categoria}}', desc: 'Categoria solicitada' },
+    { var: '{{empresa}}', desc: 'Nome da sua empresa' },
+  ],
+};
 
 export function TemplatesList() {
   const { user } = useCRM();
   const [templates, setTemplates] = useState<MessageTemplate[]>([]);
   const [editing, setEditing] = useState<MessageTemplate | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<TemplateAudience>('professional');
 
   const fetchTemplates = useCallback(async () => {
     if (!user) return;
@@ -51,12 +63,14 @@ export function TemplatesList() {
     fetchTemplates();
   };
 
-  const handleSetDefault = async (id: string) => {
+  const handleSetDefault = async (template: MessageTemplate) => {
     if (!user) return;
-    // Remove default from all
-    await supabase.from('message_templates').update({ is_default: false }).eq('user_id', user.id);
-    // Set new default
-    await supabase.from('message_templates').update({ is_default: true }).eq('id', id);
+    // Only one default per audience
+    await supabase.from('message_templates')
+      .update({ is_default: false })
+      .eq('user_id', user.id)
+      .eq('audience', template.audience);
+    await supabase.from('message_templates').update({ is_default: true }).eq('id', template.id);
     toast.success('Template padrão atualizado');
     fetchTemplates();
   };
@@ -67,77 +81,95 @@ export function TemplatesList() {
     fetchTemplates();
   };
 
+  const filteredTemplates = templates.filter(t => (t.audience || 'professional') === activeTab);
+  const variables = VARIABLES_BY_AUDIENCE[activeTab];
+
   return (
     <div className="space-y-6">
-      {/* Variables reference */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base">Variáveis disponíveis</CardTitle>
-          <CardDescription>Use estas variáveis no conteúdo do template — elas serão substituídas automaticamente</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {VARIABLES_HELP.map(v => (
-              <button
-                key={v.var}
-                onClick={() => { navigator.clipboard.writeText(v.var); toast.success(`${v.var} copiado!`); }}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-mono transition-colors hover:bg-muted"
-              >
-                <Copy className="h-3 w-3 text-muted-foreground" />
-                <span className="font-semibold text-foreground">{v.var}</span>
-                <span className="text-muted-foreground">— {v.desc}</span>
-              </button>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TemplateAudience)}>
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="professional" className="gap-2"><Send className="h-3.5 w-3.5" /> Para Profissional</TabsTrigger>
+          <TabsTrigger value="client" className="gap-2"><MessageCircle className="h-3.5 w-3.5" /> Para Cliente</TabsTrigger>
+        </TabsList>
 
-      {/* Templates grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {templates.map(t => (
-          <Card key={t.id} className="group relative">
-            <CardHeader className="pb-2">
-              <div className="flex items-start justify-between">
-                <CardTitle className="text-base">{t.name}</CardTitle>
-                {t.is_default && (
-                  <Badge className="bg-primary/10 text-primary border-0 text-[10px]">
-                    <Star className="mr-1 h-3 w-3" /> Padrão
-                  </Badge>
-                )}
-              </div>
+        <TabsContent value={activeTab} className="space-y-6 mt-6">
+          {/* Variables reference */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Variáveis disponíveis</CardTitle>
+              <CardDescription>
+                {activeTab === 'professional'
+                  ? 'Use estas variáveis no conteúdo do template — elas serão substituídas ao encaminhar para o profissional'
+                  : 'Use estas variáveis em respostas rápidas — elas serão substituídas ao conversar com o cliente'}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <pre className="whitespace-pre-wrap rounded-lg bg-muted/50 p-3 text-xs font-mono text-muted-foreground leading-relaxed">
-                {t.content}
-              </pre>
-              <div className="flex items-center gap-1">
-                {!t.is_default && (
-                  <Button variant="ghost" size="sm" onClick={() => handleSetDefault(t.id)} className="text-xs gap-1">
-                    <Star className="h-3.5 w-3.5" /> Definir padrão
-                  </Button>
-                )}
-                <div className="ml-auto flex gap-1">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(t); setShowForm(true); }}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(t.id)}>
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+            <CardContent>
+              <div className="flex flex-wrap gap-2">
+                {variables.map(v => (
+                  <button
+                    key={v.var}
+                    onClick={() => { navigator.clipboard.writeText(v.var); toast.success(`${v.var} copiado!`); }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-1.5 text-xs font-mono transition-colors hover:bg-muted"
+                  >
+                    <Copy className="h-3 w-3 text-muted-foreground" />
+                    <span className="font-semibold text-foreground">{v.var}</span>
+                    <span className="text-muted-foreground">— {v.desc}</span>
+                  </button>
+                ))}
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      {templates.length === 0 && (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-12 text-center">
-          <p className="text-sm text-muted-foreground mb-3">Nenhum template criado ainda</p>
-          <Button onClick={() => setShowForm(true)} className="gap-2">
-            <Plus className="h-4 w-4" /> Criar primeiro template
-          </Button>
-        </div>
-      )}
+          {/* Templates grid */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredTemplates.map(t => (
+              <Card key={t.id} className="group relative">
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-base">{t.name}</CardTitle>
+                    {t.is_default && (
+                      <Badge className="bg-primary/10 text-primary border-0 text-[10px]">
+                        <Star className="mr-1 h-3 w-3" /> Padrão
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <pre className="whitespace-pre-wrap rounded-lg bg-muted/50 p-3 text-xs font-mono text-muted-foreground leading-relaxed max-h-40 overflow-y-auto">
+                    {t.content}
+                  </pre>
+                  <div className="flex items-center gap-1">
+                    {!t.is_default && (
+                      <Button variant="ghost" size="sm" onClick={() => handleSetDefault(t)} className="text-xs gap-1">
+                        <Star className="h-3.5 w-3.5" /> Definir padrão
+                      </Button>
+                    )}
+                    <div className="ml-auto flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(t); setShowForm(true); }}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(t.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {filteredTemplates.length === 0 && (
+            <div className="flex flex-col items-center justify-center rounded-xl border border-dashed py-12 text-center">
+              <p className="text-sm text-muted-foreground mb-3">
+                Nenhum template {activeTab === 'professional' ? 'para profissional' : 'para cliente'} criado ainda
+              </p>
+              <Button onClick={() => setShowForm(true)} className="gap-2">
+                <Plus className="h-4 w-4" /> Criar primeiro template
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       <Button
         onClick={() => { setEditing(null); setShowForm(true); }}
@@ -147,7 +179,7 @@ export function TemplatesList() {
         <Plus className="h-6 w-6" />
       </Button>
 
-      {showForm && <TemplateForm template={editing} onClose={handleFormClose} />}
+      {showForm && <TemplateForm template={editing} defaultAudience={activeTab} onClose={handleFormClose} />}
     </div>
   );
 }

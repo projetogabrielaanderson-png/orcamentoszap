@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Phone, MessageSquare, Globe, Calendar, Send, UserCheck, Tag, StickyNote, Activity, CalendarClock, MessageCircle } from 'lucide-react';
+import { Phone, MessageSquare, Globe, Calendar, Send, UserCheck, Tag, StickyNote, Activity, CalendarClock, MessageCircle, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -16,6 +16,8 @@ import { FollowUpList } from '@/components/followups/FollowUpList';
 import { LeadActivityTimeline, logLeadActivity } from '@/components/leads/LeadActivityTimeline';
 import { LeadNotes } from '@/components/leads/LeadNotes';
 import { LeadTags } from '@/components/leads/LeadTags';
+import { ClientQuickReplies } from '@/components/leads/ClientQuickReplies';
+import { LeadFinancials } from '@/components/leads/LeadFinancials';
 
 interface LeadModalProps {
   lead: Lead;
@@ -64,6 +66,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
 
   useEffect(() => {
     supabase.from('message_templates').select('id,name,content,is_default')
+      .eq('audience', 'professional')
       .order('is_default', { ascending: false })
       .order('name')
       .then(({ data }) => {
@@ -171,23 +174,6 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
 
             {!showProfessionalSelect ? (
               <div className="space-y-2">
-                <Button
-                  onClick={() => {
-                    const phone = formatPhone(lead.phone);
-                    const firstName = lead.name.trim().split(' ')[0];
-                    const message = `Olá ${firstName}, tudo bem? 👋\n\nRecebi sua solicitação de orçamento e já estou dando seguimento no seu pedido. Em breve um de nossos profissionais entrará em contato com você.\n\nPosso te ajudar com mais alguma informação?`;
-                    const msg = encodeURIComponent(message);
-                    const url = `https://wa.me/${phone}?text=${msg}`;
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                    if (user) logLeadActivity(lead.id, user.id, 'Contato direto com cliente', 'WhatsApp aberto');
-                    toast.success('Abrindo WhatsApp do cliente...');
-                  }}
-                  variant="outline"
-                  className="w-full gap-2 border-status-done/40 text-status-done hover:bg-status-done/10 hover:text-status-done"
-                  size="lg"
-                >
-                  <MessageCircle className="h-4 w-4" /> Conversar com Cliente
-                </Button>
                 <Button onClick={() => setShowProfessionalSelect(true)} className="w-full gap-2" size="lg">
                   <Send className="h-4 w-4" /> Enviar para Profissional
                 </Button>
@@ -248,13 +234,21 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
           </div>
         </div>
 
-        {/* Tabs: Follow-ups, Notes, Activity */}
-        <Tabs defaultValue="followups" className="mt-4">
-          <TabsList className="grid w-full grid-cols-3">
+        {/* Tabs */}
+        <Tabs defaultValue="client" className="mt-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="client" className="gap-1 text-xs"><MessageCircle className="h-3.5 w-3.5" /> Cliente</TabsTrigger>
+            <TabsTrigger value="financial" className="gap-1 text-xs"><DollarSign className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
             <TabsTrigger value="followups" className="gap-1 text-xs"><CalendarClock className="h-3.5 w-3.5" /> Lembretes</TabsTrigger>
             <TabsTrigger value="notes" className="gap-1 text-xs"><StickyNote className="h-3.5 w-3.5" /> Notas</TabsTrigger>
             <TabsTrigger value="activity" className="gap-1 text-xs"><Activity className="h-3.5 w-3.5" /> Histórico</TabsTrigger>
           </TabsList>
+          <TabsContent value="client" className="mt-3">
+            <ClientQuickReplies lead={lead} />
+          </TabsContent>
+          <TabsContent value="financial" className="mt-3">
+            <LeadFinancials lead={lead} />
+          </TabsContent>
           <TabsContent value="followups" className="space-y-3 mt-3">
             <FollowUpForm leadId={lead.id} onAdded={() => setFollowUpRefresh(r => r + 1)} />
             <FollowUpList leadId={lead.id} refreshKey={followUpRefresh} />

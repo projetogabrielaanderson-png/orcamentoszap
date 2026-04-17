@@ -202,13 +202,17 @@ export type Database = {
       leads: {
         Row: {
           category_id: string
+          closed_value: number | null
           created_at: string
           id: string
+          lost_reason: string | null
           message: string
           name: string
           origin_url: string
+          outcome: string | null
           phone: string
           professional_id: string | null
+          quote_value: number | null
           status: string
           tags: string[]
           updated_at: string
@@ -219,13 +223,17 @@ export type Database = {
         }
         Insert: {
           category_id: string
+          closed_value?: number | null
           created_at?: string
           id?: string
+          lost_reason?: string | null
           message?: string
           name: string
           origin_url?: string
+          outcome?: string | null
           phone: string
           professional_id?: string | null
+          quote_value?: number | null
           status?: string
           tags?: string[]
           updated_at?: string
@@ -236,13 +244,17 @@ export type Database = {
         }
         Update: {
           category_id?: string
+          closed_value?: number | null
           created_at?: string
           id?: string
+          lost_reason?: string | null
           message?: string
           name?: string
           origin_url?: string
+          outcome?: string | null
           phone?: string
           professional_id?: string | null
+          quote_value?: number | null
           status?: string
           tags?: string[]
           updated_at?: string
@@ -270,6 +282,7 @@ export type Database = {
       }
       message_templates: {
         Row: {
+          audience: string
           content: string
           created_at: string
           id: string
@@ -279,6 +292,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          audience?: string
           content: string
           created_at?: string
           id?: string
@@ -288,6 +302,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          audience?: string
           content?: string
           created_at?: string
           id?: string
