@@ -71,10 +71,7 @@ export function WhatsAppFloatingButton({
       : `Olá! Meu nome é ${name.trim()} e gostaria de um orçamento.\nMeu telefone: +${fullPhone}`;
     const encoded = encodeURIComponent(msgText);
     onLeadCapture?.({ name: name.trim(), phone: fullPhone, message: message.trim() });
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    const url = isMobile
-      ? `https://wa.me/${whatsappNumber}?text=${encoded}`
-      : `https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encoded}`;
+    const url = `https://wa.me/${whatsappNumber}?text=${encoded}`;
     whatsappUrlRef.current = url;
     setSending(false);
     setSent(true);
