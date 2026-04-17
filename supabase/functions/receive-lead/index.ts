@@ -96,38 +96,26 @@ Deno.serve(async (req) => {
     }
 
     if (!categoryId) {
-      console.info("Category ID is empty, fetching default...");
-    } else {
-      // Check if provided categoryId actually exists
-      const { data: catExists } = await supabase
-        .from("categories")
-        .select("id")
-        .eq("id", categoryId)
-        .maybeSingle();
-      
-      if (!catExists) {
-        console.warn(`Provided category_id ${categoryId} does not exist. Finding fallback...`);
-        categoryId = ""; // Reset to trigger fallback fetch
-      }
+      console.warn("Lead recebido sem category_id");
+      return new Response(JSON.stringify({ error: "Categoria não informada. Verifique o formulário/embed (campo category_id)." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    if (!categoryId) {
-      console.info("Fetching fallback category...");
-      const { data: category, error: categoryError } = await supabase
-        .from("categories")
-        .select("id")
-        .limit(1)
-        .single();
+    // Valida que a categoria informada realmente existe
+    const { data: catExists } = await supabase
+      .from("categories")
+      .select("id")
+      .eq("id", categoryId)
+      .maybeSingle();
 
-      if (categoryError || !category?.id) {
-        console.error("No categories found in database at all:", categoryError);
-        return new Response(JSON.stringify({ error: "Nenhuma categoria disponível no sistema para atribuir o lead." }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
-      categoryId = category.id;
+    if (!catExists) {
+      console.warn(`category_id ${categoryId} não existe no banco`);
+      return new Response(JSON.stringify({ error: "Categoria informada não existe. Regenere o embed/link do formulário." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
 
