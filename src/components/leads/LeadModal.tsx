@@ -174,7 +174,9 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
                 <Button
                   onClick={() => {
                     const phone = formatPhone(lead.phone);
-                    const msg = encodeURIComponent(`Olá ${lead.name}! Tudo bem?`);
+                    const firstName = lead.name.trim().split(' ')[0];
+                    const message = `Olá ${firstName}, tudo bem? 👋\n\nRecebi sua solicitação de orçamento e já estou dando seguimento no seu pedido. Em breve um de nossos profissionais entrará em contato com você.\n\nPosso te ajudar com mais alguma informação?`;
+                    const msg = encodeURIComponent(message);
                     const url = `https://wa.me/${phone}?text=${msg}`;
                     window.open(url, '_blank', 'noopener,noreferrer');
                     if (user) logLeadActivity(lead.id, user.id, 'Contato direto com cliente', 'WhatsApp aberto');
