@@ -416,11 +416,8 @@ const LeadFormPage = () => {
     const msg = encodeURIComponent(
       `Olá! Meu nome é ${values.name}, meu telefone é ${values.phone}. ${values.message || ''}`.trim()
     );
-    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
-    const url = isMobile
-      ? `https://wa.me/${phone}?text=${msg}`
-      : `https://web.whatsapp.com/send?phone=${phone}&text=${msg}`;
-    window.open(url, '_blank');
+    const url = `https://wa.me/${phone}?text=${msg}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
   }, [whatsappNumber, values.name, values.phone, values.message]);
 
   useEffect(() => {
