@@ -179,7 +179,7 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
                     if (user) logLeadActivity(lead.id, user.id, 'Contato direto com cliente', 'WhatsApp aberto');
                   }}
                   variant="outline"
-                  className="w-full gap-2 border-green-500/40 text-green-700 hover:bg-green-50 hover:text-green-800 dark:text-green-400 dark:hover:bg-green-950"
+                  className="w-full gap-2 border-status-done/40 text-status-done hover:bg-status-done/10 hover:text-status-done"
                   size="lg"
                 >
                   <MessageCircle className="h-4 w-4" /> Conversar com Cliente
