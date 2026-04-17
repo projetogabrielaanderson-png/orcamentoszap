@@ -1,5 +1,6 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnalyticsCharts } from '@/components/analytics/AnalyticsCharts';
+import { SalesFunnel } from '@/components/analytics/SalesFunnel';
 import { useCRM } from '@/contexts/CRMContext';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
