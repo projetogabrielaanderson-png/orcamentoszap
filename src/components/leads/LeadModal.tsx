@@ -234,13 +234,21 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
           </div>
         </div>
 
-        {/* Tabs: Follow-ups, Notes, Activity */}
-        <Tabs defaultValue="followups" className="mt-4">
-          <TabsList className="grid w-full grid-cols-3">
+        {/* Tabs */}
+        <Tabs defaultValue="client" className="mt-4">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="client" className="gap-1 text-xs"><MessageCircle className="h-3.5 w-3.5" /> Cliente</TabsTrigger>
+            <TabsTrigger value="financial" className="gap-1 text-xs"><DollarSign className="h-3.5 w-3.5" /> Financeiro</TabsTrigger>
             <TabsTrigger value="followups" className="gap-1 text-xs"><CalendarClock className="h-3.5 w-3.5" /> Lembretes</TabsTrigger>
             <TabsTrigger value="notes" className="gap-1 text-xs"><StickyNote className="h-3.5 w-3.5" /> Notas</TabsTrigger>
             <TabsTrigger value="activity" className="gap-1 text-xs"><Activity className="h-3.5 w-3.5" /> Histórico</TabsTrigger>
           </TabsList>
+          <TabsContent value="client" className="mt-3">
+            <ClientQuickReplies lead={lead} />
+          </TabsContent>
+          <TabsContent value="financial" className="mt-3">
+            <LeadFinancials lead={lead} />
+          </TabsContent>
           <TabsContent value="followups" className="space-y-3 mt-3">
             <FollowUpForm leadId={lead.id} onAdded={() => setFollowUpRefresh(r => r + 1)} />
             <FollowUpList leadId={lead.id} refreshKey={followUpRefresh} />
