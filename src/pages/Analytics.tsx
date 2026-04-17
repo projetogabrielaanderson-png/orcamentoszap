@@ -59,6 +59,8 @@ const AnalyticsPage = () => {
         </div>
         <AnalyticsCharts />
 
+        <SalesFunnel />
+
         {/* Export */}
         <div className="rounded-lg border p-4 space-y-3">
           <h2 className="text-lg font-semibold flex items-center gap-2"><FileText className="h-5 w-5" /> Exportar Leads</h2>
