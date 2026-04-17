@@ -14,16 +14,24 @@ export interface MessageTemplate {
   name: string;
   content: string;
   is_default: boolean;
+  audience: 'professional' | 'client';
   created_at: string;
   updated_at: string;
 }
 
-const VARIABLES_HELP = [
+const VARIABLES_HELP_PROFESSIONAL = [
   { var: '{{profissional}}', desc: 'Nome do profissional' },
   { var: '{{lead_nome}}', desc: 'Nome do lead' },
   { var: '{{lead_telefone}}', desc: 'Telefone do lead' },
   { var: '{{lead_mensagem}}', desc: 'Mensagem do lead' },
   { var: '{{categoria}}', desc: 'Categoria do serviço' },
+];
+
+const VARIABLES_HELP_CLIENT = [
+  { var: '{{lead_nome}}', desc: 'Nome do cliente' },
+  { var: '{{lead_primeiro_nome}}', desc: 'Primeiro nome do cliente' },
+  { var: '{{categoria}}', desc: 'Categoria solicitada' },
+  { var: '{{empresa}}', desc: 'Nome da sua empresa' },
 ];
 
 export function TemplatesList() {
