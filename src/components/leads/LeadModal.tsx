@@ -175,8 +175,10 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
                   onClick={() => {
                     const phone = formatPhone(lead.phone);
                     const msg = encodeURIComponent(`Olá ${lead.name}! Tudo bem?`);
-                    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                    const url = `https://wa.me/${phone}?text=${msg}`;
+                    window.open(url, '_blank', 'noopener,noreferrer');
                     if (user) logLeadActivity(lead.id, user.id, 'Contato direto com cliente', 'WhatsApp aberto');
+                    toast.success('Abrindo WhatsApp do cliente...');
                   }}
                   variant="outline"
                   className="w-full gap-2 border-status-done/40 text-status-done hover:bg-status-done/10 hover:text-status-done"
