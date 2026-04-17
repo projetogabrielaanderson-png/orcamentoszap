@@ -118,7 +118,7 @@ busy=1;
 var ph=dg.indexOf('55')===0?dg:'55'+dg;
 fetch('${edgeEndpoint}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nm,phone:ph,message:mg,user_id:'${ownerId}',category_id:'${config.category_id}',origin_url:'${siteUrl}'})}).catch(function(){});
 var msg=encodeURIComponent('Olá! Meu nome é '+nm+'.\\n'+(mg?mg+'\\n':'')+'Tel: +'+ph);
-waUrl=/Android|iPhone|iPad/i.test(navigator.userAgent)?'https://wa.me/${whatsappNumber}?text='+msg:'https://web.whatsapp.com/send?phone=${whatsappNumber}&text='+msg;
+waUrl='https://wa.me/${whatsappNumber}?text='+msg;
 f.style.display='none';ok.classList.add('s');
 var sec=5;cd.textContent=sec;br.style.width='0%';
 var ti=setInterval(function(){sec--;cd.textContent=sec;br.style.width=((5-sec)/5*100)+'%';if(sec<=0){clearInterval(ti);window.open(waUrl,'_blank');setTimeout(function(){f.reset();f.style.display='';ok.classList.remove('s');o.classList.remove('open');busy=0},300)}},1000);
