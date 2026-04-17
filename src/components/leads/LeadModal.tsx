@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Phone, MessageSquare, Globe, Calendar, Send, UserCheck, Tag, StickyNote, Activity, CalendarClock } from 'lucide-react';
+import { Phone, MessageSquare, Globe, Calendar, Send, UserCheck, Tag, StickyNote, Activity, CalendarClock, MessageCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -170,9 +170,24 @@ export function LeadModal({ lead, onClose }: LeadModalProps) {
             </div>
 
             {!showProfessionalSelect ? (
-              <Button onClick={() => setShowProfessionalSelect(true)} className="w-full gap-2" size="lg">
-                <Send className="h-4 w-4" /> Enviar para Profissional
-              </Button>
+              <div className="space-y-2">
+                <Button
+                  onClick={() => {
+                    const phone = formatPhone(lead.phone);
+                    const msg = encodeURIComponent(`Olá ${lead.name}! Tudo bem?`);
+                    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                    if (user) logLeadActivity(lead.id, user.id, 'Contato direto com cliente', 'WhatsApp aberto');
+                  }}
+                  variant="outline"
+                  className="w-full gap-2 border-status-done/40 text-status-done hover:bg-status-done/10 hover:text-status-done"
+                  size="lg"
+                >
+                  <MessageCircle className="h-4 w-4" /> Conversar com Cliente
+                </Button>
+                <Button onClick={() => setShowProfessionalSelect(true)} className="w-full gap-2" size="lg">
+                  <Send className="h-4 w-4" /> Enviar para Profissional
+                </Button>
+              </div>
             ) : (
               <div className="space-y-2">
                 {templates.length > 0 && (
