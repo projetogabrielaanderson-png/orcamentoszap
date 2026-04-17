@@ -1,4 +1,6 @@
 export type LeadStatus = 'new' | 'in_progress' | 'waiting' | 'done';
+export type LeadOutcome = 'won' | 'lost' | null;
+export type TemplateAudience = 'professional' | 'client';
 
 export interface Category {
   id: string;
@@ -34,6 +36,10 @@ export interface Lead {
   created_at: string;
   updated_at: string;
   tags: string[];
+  quote_value?: number | null;
+  closed_value?: number | null;
+  outcome?: LeadOutcome;
+  lost_reason?: string | null;
 }
 
 export const STATUS_CONFIG: Record<LeadStatus, { label: string; color: string; bgClass: string; textClass: string }> = {
