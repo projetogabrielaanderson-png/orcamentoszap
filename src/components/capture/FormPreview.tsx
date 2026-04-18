@@ -62,7 +62,8 @@ export function FormPreview({ config, categoryName }: FormPreviewProps) {
                 return (
                   <input
                     key={i}
-                    placeholder={field.label}
+                    type={field.type === 'url' ? 'url' : field.type === 'email' ? 'email' : 'text'}
+                    placeholder={field.type === 'url' ? `${field.label} (https://...)` : field.label}
                     disabled
                     className="w-full rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm"
                   />
