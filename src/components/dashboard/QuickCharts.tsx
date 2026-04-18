@@ -43,28 +43,30 @@ export function QuickCharts() {
     leads: { label: 'Leads', color: 'hsl(var(--chart-1))' },
   };
 
+  const hasAreaData = areaData.some(d => d.leads > 0);
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       {/* Interactive Area Chart */}
-      <Card className="lg:col-span-2">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <div className="space-y-1">
-            <CardTitle className="text-base font-semibold">Leads por Dia</CardTitle>
-            <CardDescription>Evolução de captação de leads</CardDescription>
+      <Card className="lg:col-span-2 overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 gap-2">
+          <div className="space-y-1 min-w-0">
+            <CardTitle className="text-base font-semibold truncate">Leads por Dia</CardTitle>
+            <CardDescription className="truncate">Evolução de captação de leads</CardDescription>
           </div>
           <ToggleGroup
             type="single"
             value={timeRange}
             onValueChange={(v) => v && setTimeRange(v)}
             variant="outline"
-            className="hidden sm:flex"
+            className="hidden sm:flex shrink-0"
           >
             <ToggleGroupItem value="7d" className="h-8 px-3 text-xs">7 dias</ToggleGroupItem>
             <ToggleGroupItem value="30d" className="h-8 px-3 text-xs">30 dias</ToggleGroupItem>
             <ToggleGroupItem value="90d" className="h-8 px-3 text-xs">90 dias</ToggleGroupItem>
           </ToggleGroup>
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-36 sm:hidden" aria-label="Período">
+            <SelectTrigger className="w-28 sm:hidden shrink-0" aria-label="Período">
               <SelectValue placeholder="Período" />
             </SelectTrigger>
             <SelectContent>
@@ -75,37 +77,43 @@ export function QuickCharts() {
           </Select>
         </CardHeader>
         <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-          <ChartContainer config={areaConfig} className="aspect-auto h-[250px] w-full">
-            <AreaChart data={areaData} accessibilityLayer>
-              <defs>
-                <linearGradient id="fillLeads" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--color-leads)" stopOpacity={0.8} />
-                  <stop offset="95%" stopColor="var(--color-leads)" stopOpacity={0.1} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="day"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={32}
-                fontSize={11}
-              />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent indicator="dot" />}
-              />
-              <Area
-                type="natural"
-                dataKey="leads"
-                stroke="var(--color-leads)"
-                fill="url(#fillLeads)"
-                strokeWidth={2}
-              />
-            </AreaChart>
-          </ChartContainer>
+          {!hasAreaData ? (
+            <div className="flex h-[250px] items-center justify-center text-sm text-muted-foreground">
+              Nenhum lead no período selecionado
+            </div>
+          ) : (
+            <ChartContainer config={areaConfig} className="aspect-auto h-[250px] w-full">
+              <AreaChart data={areaData} accessibilityLayer>
+                <defs>
+                  <linearGradient id="fillLeads" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-leads)" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="var(--color-leads)" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="day"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                  minTickGap={32}
+                  fontSize={11}
+                />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
+                <ChartTooltip
+                  cursor={false}
+                  content={<ChartTooltipContent indicator="dot" />}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="leads"
+                  stroke="var(--color-leads)"
+                  fill="url(#fillLeads)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
         </CardContent>
       </Card>
 
