@@ -55,11 +55,11 @@ function AuthRoute() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <CRMProvider>
-        <Toaster />
-        <Sonner />
-        <PushSoundBridge />
-        <BrowserRouter>
+      <BrowserRouter>
+        <CRMProvider>
+          <Toaster />
+          <Sonner />
+          <PushSoundBridge />
           <Routes>
             <Route path="/auth" element={<AuthRoute />} />
             <Route path="/form" element={<LeadFormPage />} />
@@ -75,8 +75,8 @@ const App = () => (
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </CRMProvider>
+        </CRMProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
