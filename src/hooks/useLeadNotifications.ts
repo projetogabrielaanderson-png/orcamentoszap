@@ -19,9 +19,8 @@ function playNotificationSound() {
 }
 
 export function useLeadNotifications() {
-  const { leads } = useCRM();
+  const { leads, leadsLoaded, user } = useCRM();
   const prevCountRef = useRef<number | null>(null);
-  const initialized = useRef(false);
 
   const requestPushPermission = useCallback(async () => {
     if ('Notification' in window && Notification.permission === 'default') {
@@ -30,37 +29,41 @@ export function useLeadNotifications() {
   }, []);
 
   useEffect(() => {
-    const currentCount = leads.filter(l => l.status === 'new').length;
+    prevCountRef.current = null;
+  }, [user?.id]);
 
-    if (!initialized.current) {
+  useEffect(() => {
+    if (!leadsLoaded) return;
+
+    const currentCount = leads.filter(l => l.status === 'new').length;
+    const isForeground = typeof document !== 'undefined' && document.visibilityState === 'visible';
+
+    if (prevCountRef.current === null) {
       prevCountRef.current = currentCount;
-      initialized.current = true;
       return;
     }
 
     if (prevCountRef.current !== null && currentCount > prevCountRef.current) {
       const diff = currentCount - prevCountRef.current;
-      
-      // Sound
-      playNotificationSound();
 
-      // Toast
-      toast.info(`🔔 ${diff} novo${diff > 1 ? 's' : ''} lead${diff > 1 ? 's' : ''}!`, {
-        description: 'Confira no Kanban ou Dashboard',
-        duration: 6000,
-      });
-
-      // Browser push
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('LeadFlow — Novo Lead!', {
-          body: `${diff} novo${diff > 1 ? 's' : ''} lead${diff > 1 ? 's' : ''} recebido${diff > 1 ? 's' : ''}`,
-          icon: '/favicon.ico',
+      if (isForeground) {
+        playNotificationSound();
+        toast.info(`🔔 ${diff} novo${diff > 1 ? 's' : ''} lead${diff > 1 ? 's' : ''}!`, {
+          description: 'Confira no Kanban ou Dashboard',
+          duration: 6000,
         });
+      } else if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification('CRM ZAP — Novo Lead!', {
+            body: `${diff} novo${diff > 1 ? 's' : ''} lead${diff > 1 ? 's' : ''} recebido${diff > 1 ? 's' : ''}`,
+            icon: '/favicon.ico',
+          });
+        } catch {}
       }
     }
 
     prevCountRef.current = currentCount;
-  }, [leads]);
+  }, [leads, leadsLoaded]);
 
   return { requestPushPermission };
 }
