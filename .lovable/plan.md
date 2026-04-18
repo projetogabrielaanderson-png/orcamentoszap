@@ -1,62 +1,75 @@
 
-## Plano: PWA + Push Notifications Reais
 
-### Avisos importantes
-1. **Service Worker não funciona no preview do editor** (iframe + hosts `id-preview--*`). Push real só funciona em `whatsapp.assistenciatecnica.maringa.br` ou `orcamentoszap.lovable.app` após **publicar**.
-2. SW será desabilitado em dev e bloqueado em iframes/preview para evitar cache stale (regra obrigatória do Lovable).
-3. Push real precisa de chaves **VAPID** + tabela de subscriptions + Edge Function de envio.
+## Plano: Personalização de mensagens + som customizado nas push notifications
 
-### O que será implementado
+### Objetivo
+Permitir que o usuário personalize **título**, **corpo**, **ícone** e **som** das push notifications de novo lead, com suporte a variáveis dinâmicas (`{{nome}}`, `{{telefone}}`, `{{categoria}}`, `{{empresa}}`).
 
-**Parte 1 — PWA instalável**
-- Adicionar `vite-plugin-pwa` + `workbox-window`
-- Configurar `vite.config.ts` com `injectManifest`, `devOptions.enabled: false`, `navigateFallbackDenylist: [/^\/auth/, /^\/form/]`
-- Manifest: nome "CRM ZAP", theme color, ícones 192/512 (gerados via IA com a marca)
-- Meta tags PWA no `index.html` (`theme-color`, `apple-mobile-web-app-*`)
-- **Guard de registro** em `src/main.tsx`: desregistra SW em iframes/preview, registra apenas em produção
+### Estado atual (já existe)
+- `push-send` envia payload fixo: `"🔔 Novo Lead — CRM ZAP"` + `nome • telefone`
+- SW (`src/sw.ts`) mostra notificação com `tag: 'crmzap-lead'`, sem som customizado
+- `user_settings` já existe mas não tem campos de personalização
 
-**Parte 2 — Service Worker custom (`src/sw.ts`)**
-- Listener `push` → mostra notificação (título, body, icon, badge, data com URL)
-- Listener `notificationclick` → abre/foca a aba no `/kanban`
-- Workbox precaching do app shell
+### Mudanças
 
-**Parte 3 — Backend Push**
-- **Tabela `push_subscriptions`**: `user_id`, `endpoint` (unique), `p256dh`, `auth`, `user_agent`, `created_at` + RLS (usuário gerencia só as suas)
-- **Habilitar `pg_net`** para trigger chamar Edge Function
-- **Trigger `on_lead_insert`**: dispara em `INSERT` na tabela `leads`, chama Edge Function `push-send` com `user_id` dono
-- **Edge Functions**:
-  - `vapid-public-key` (público) — retorna a public key pro client
-  - `push-subscribe` (autenticado) — salva subscription
-  - `push-unsubscribe` (autenticado) — remove subscription
-  - `push-send` (interno via service role) — busca subs do user_id e envia via `npm:web-push`
+**1. Schema (migration)**
+Adicionar colunas em `user_settings`:
+- `push_title_template` text default `'🔔 Novo Lead — {{empresa}}'`
+- `push_body_template` text default `'{{nome}} • {{telefone}}'`
+- `push_sound` text default `'default'` (opções: `default`, `bell`, `chime`, `alert`, `none`)
+- `push_vibrate` boolean default `true`
 
-**Parte 4 — UI em `Settings`**
-- Botão "Ativar Push Notifications" → pede permissão → fetch da public key → `pushManager.subscribe` → POST `push-subscribe`
-- Status visual: "Ativo neste dispositivo" / "Desativado"
-- Botão para desativar deste dispositivo
-- Aviso amigável: "Funciona apenas no app publicado, não no preview"
+**2. Edge function `push-send`**
+- Buscar `user_settings` do `user_id` junto com as subscriptions
+- Renderizar templates substituindo `{{nome}}`, `{{telefone}}`, `{{categoria}}` (join com `categories`), `{{empresa}}` (de `company_name`)
+- Incluir no payload: `sound`, `vibrate`, `requireInteraction`
 
-**Parte 5 — Memória**
-- Criar `mem://features/pwa-push` documentando a arquitetura
-- Atualizar `mem://index.md`
+**3. Service Worker (`src/sw.ts`)**
+- Ler `data.sound` do payload e tocar áudio via `clients.matchAll()` postando mensagem ao client ativo (Web Push API não toca som direto — precisa do client)
+- Se nenhum client aberto, usar `vibrate: [200, 100, 200]` na própria notification
+- Adicionar `requireInteraction: true` para iOS/Android segurar a notificação
 
-### Decisões que preciso de você
+**4. Assets de som**
+Adicionar 4 arquivos curtos (~1-2s) em `public/sounds/`:
+- `bell.mp3`, `chime.mp3`, `alert.mp3` (gerados/baixados de fonte livre)
 
-Antes de implementar, preciso confirmar 3 coisas:
+**5. UI em `Settings.tsx`**
+Novo card "Personalização das notificações" dentro da seção Notificações:
+- Input: Título (com hint das variáveis disponíveis)
+- Textarea: Corpo (com hint das variáveis)
+- Select: Som (Padrão / Sino / Chime / Alerta / Sem som) + botão ▶ "Testar som"
+- Switch: Vibrar
+- Botão "Enviar push de teste" que chama `push-send` com lead fake
 
-**1. Chaves VAPID** — opções:
-- (a) Você gera com `npx web-push generate-vapid-keys` (ou em https://vapidkeys.com) e cola quando eu pedir → mais seguro
-- (b) Eu crio uma Edge Function temporária que gera, mostra uma vez, você salva como secret → mais rápido
+**6. Listener no client (novo hook `usePushSoundListener`)**
+Em `App.tsx`, registrar listener `navigator.serviceWorker.addEventListener('message', ...)` que toca o `<audio>` quando SW pede.
 
-**2. Quais eventos disparam push?**
-- (a) Só novo lead (recomendado para começar)
-- (b) Novo lead + mudanças de status
-- (c) Novo lead + SLA atrasado (cron a cada 5min)
-- (d) Todos (novo lead + status + SLA + follow-up)
+### Limitações conhecidas
+- **iOS**: som customizado em PWA é limitado; só toca se o app estiver em foreground via client message
+- **Som no SW**: Web Push não permite tocar áudio direto do SW — solução é client message + fallback vibrate
 
-**3. Ícones do PWA:**
-- (a) Gerar com IA (logo CRM ZAP nas cores da marca) — recomendado
-- (b) Usar o favicon atual ampliado (qualidade limitada)
-- (c) Você envia os PNGs depois (uso placeholder por enquanto)
+### Arquivos a editar
+```text
+supabase/migrations/<new>.sql              [novo]
+supabase/functions/push-send/index.ts      [editar]
+src/sw.ts                                  [editar]
+src/pages/Settings.tsx                     [editar]
+src/App.tsx                                [editar — montar listener]
+src/hooks/usePushSoundListener.ts          [novo]
+public/sounds/bell.mp3                     [novo]
+public/sounds/chime.mp3                    [novo]
+public/sounds/alert.mp3                    [novo]
+```
 
-**Responda nas 3 perguntas e eu prossigo com a implementação completa.**
+### Fluxo final
+```text
+Lead INSERT → trigger → push-send
+  → busca user_settings + categoria
+  → renderiza templates
+  → envia payload {title, body, sound, vibrate}
+SW recebe push
+  → showNotification (com vibrate)
+  → postMessage({type:'PLAY_SOUND', sound}) aos clients
+Client (hook) → toca <audio src={`/sounds/${sound}.mp3`} />
+```
+
