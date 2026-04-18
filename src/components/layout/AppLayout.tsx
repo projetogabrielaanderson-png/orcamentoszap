@@ -20,9 +20,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
         </SheetContent>
       </Sheet>
 
-      <div className="flex flex-1 flex-col md:ml-60 min-w-0">
+      <div className="flex flex-1 flex-col md:ml-60 min-w-0 w-full">
         <AppHeader onOpenMenu={() => setMobileOpen(true)} />
-        <main className="flex-1 p-3 md:p-6">{children}</main>
+        <main className="flex-1 p-3 md:p-6 overflow-x-hidden w-full min-w-0">{children}</main>
       </div>
     </div>
   );
