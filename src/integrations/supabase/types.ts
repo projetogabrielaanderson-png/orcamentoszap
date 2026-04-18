@@ -390,6 +390,10 @@ export type Database = {
           id: string
           notification_push: boolean
           notification_sound: boolean
+          push_body_template: string
+          push_sound: string
+          push_title_template: string
+          push_vibrate: boolean
           updated_at: string
           user_id: string
         }
@@ -401,6 +405,10 @@ export type Database = {
           id?: string
           notification_push?: boolean
           notification_sound?: boolean
+          push_body_template?: string
+          push_sound?: string
+          push_title_template?: string
+          push_vibrate?: boolean
           updated_at?: string
           user_id: string
         }
@@ -412,6 +420,10 @@ export type Database = {
           id?: string
           notification_push?: boolean
           notification_sound?: boolean
+          push_body_template?: string
+          push_sound?: string
+          push_title_template?: string
+          push_vibrate?: boolean
           updated_at?: string
           user_id?: string
         }
