@@ -745,7 +745,7 @@ const LeadFormPage = () => {
               ) : (
                 <input
                   autoFocus
-                  type={step.type === 'tel' ? 'tel' : step.type === 'email' ? 'email' : 'text'}
+                  type={step.type === 'tel' ? 'tel' : step.type === 'email' ? 'email' : step.type === 'url' ? 'url' : 'text'}
                   placeholder={step.placeholder}
                   value={currentValue}
                   onChange={e => setValue(step.id, e.target.value)}
