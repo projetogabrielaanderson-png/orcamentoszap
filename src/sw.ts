@@ -21,14 +21,14 @@ self.addEventListener('push', (event: PushEvent) => {
     data = { title: 'CRM ZAP', body: event.data?.text() ?? '' };
   }
   const title = data.title || 'CRM ZAP';
-  const options: NotificationOptions = {
+  const options = {
     body: data.body || '',
     icon: data.icon || '/pwa-192x192.png',
     badge: data.badge || '/pwa-192x192.png',
     data: data.data || { url: '/kanban' },
     tag: 'crmzap-lead',
     renotify: true,
-  };
+  } as NotificationOptions;
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
