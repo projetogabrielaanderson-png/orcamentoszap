@@ -6,6 +6,7 @@ import type { User } from '@supabase/supabase-js';
 
 interface CRMContextType {
   leads: Lead[];
+  leadsLoaded: boolean;
   professionals: Professional[];
   categories: Category[];
   user: User | null;
@@ -26,6 +27,7 @@ const CRMContext = createContext<CRMContextType | null>(null);
 
 export function CRMProvider({ children }: { children: React.ReactNode }) {
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [leadsLoaded, setLeadsLoaded] = useState(false);
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [user, setUser] = useState<User | null>(null);
@@ -52,11 +54,11 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Fetch data when user is available
-  const refreshLeads = useCallback(() => {
+  const refreshLeads = useCallback(async () => {
     if (!user) return;
-    supabase.from('leads').select('*').order('created_at', { ascending: false }).then(({ data }) => {
-      if (data) setLeads(data as unknown as Lead[]);
-    });
+    const { data } = await supabase.from('leads').select('*').order('created_at', { ascending: false });
+    if (data) setLeads(data as unknown as Lead[]);
+    setLeadsLoaded(true);
   }, [user]);
 
   const refreshProfessionals = useCallback(() => {
@@ -68,10 +70,12 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user) {
+      setLeadsLoaded(false);
       refreshLeads();
       refreshProfessionals();
     } else {
       setLeads([]);
+      setLeadsLoaded(false);
       setProfessionals([]);
     }
   }, [user, refreshLeads, refreshProfessionals]);
@@ -145,7 +149,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CRMContext.Provider value={{
-      leads, professionals, categories, user, loading,
+      leads, leadsLoaded, professionals, categories, user, loading,
       updateLeadStatus, assignProfessional, addProfessional, updateProfessional, deleteProfessional,
       getCategoryName, getCategoryColor, getProfessionalName, signOut, refreshLeads,
     }}>
