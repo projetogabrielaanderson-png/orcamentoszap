@@ -27,23 +27,31 @@ const navItems = [
   { href: '/settings', label: 'Configurações', icon: Settings },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  mobile?: boolean;
+  onNavigate?: () => void;
+}
+
+export function AppSidebar({ mobile = false, onNavigate }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
+  const isCollapsed = !mobile && collapsed;
+
+  const containerClass = mobile
+    ? 'flex h-full w-full flex-col bg-sidebar'
+    : cn(
+        'fixed left-0 top-0 z-40 hidden md:flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300',
+        isCollapsed ? 'w-16' : 'w-60'
+      );
 
   return (
-    <aside
-      className={cn(
-        'fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300',
-        collapsed ? 'w-16' : 'w-60'
-      )}
-    >
+    <aside className={containerClass}>
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary">
           <Zap className="h-4 w-4 text-primary-foreground" />
         </div>
-        {!collapsed && (
+        {!isCollapsed && (
           <span className="text-lg font-bold text-sidebar-foreground tracking-tight">
             CRM ZAP
           </span>
@@ -51,13 +59,14 @@ export function AppSidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 space-y-1 p-3">
+      <nav className="flex-1 space-y-1 p-3 overflow-y-auto">
         {navItems.map((item) => {
           const active = location.pathname === item.href;
           return (
             <Link
               key={item.href}
               to={item.href}
+              onClick={onNavigate}
               className={cn(
                 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 active
@@ -66,23 +75,25 @@ export function AppSidebar() {
               )}
             >
               <item.icon className={cn('h-5 w-5 shrink-0', active && 'text-primary')} />
-              {!collapsed && <span>{item.label}</span>}
+              {!isCollapsed && <span>{item.label}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="border-t border-sidebar-border p-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setCollapsed(!collapsed)}
-          className="w-full justify-center"
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
-      </div>
+      {/* Collapse toggle (desktop only) */}
+      {!mobile && (
+        <div className="border-t border-sidebar-border p-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCollapsed(!collapsed)}
+            className="w-full justify-center"
+          >
+            {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </Button>
+        </div>
+      )}
     </aside>
   );
 }
