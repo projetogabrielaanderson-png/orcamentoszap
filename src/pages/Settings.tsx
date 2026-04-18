@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useCRM } from '@/contexts/CRMContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,9 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Save, Plus, Trash2, Bell, Building2, Palette } from 'lucide-react';
+import { Save, Plus, Trash2, Bell, Building2, Palette, Smartphone, AlertCircle } from 'lucide-react';
 
 interface UserSettings {
   company_name: string;
@@ -18,6 +17,28 @@ interface UserSettings {
   notification_sound: boolean;
   notification_push: boolean;
 }
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const out = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+  return out;
+}
+
+const isInIframe = (() => {
+  try { return window.self !== window.top; } catch { return true; }
+})();
+const isPreviewHost =
+  typeof window !== 'undefined' &&
+  (window.location.hostname.includes('id-preview--') ||
+    window.location.hostname.includes('lovableproject.com'));
+const pushSupported =
+  typeof window !== 'undefined' &&
+  'serviceWorker' in navigator &&
+  'PushManager' in window &&
+  'Notification' in window;
 
 const SettingsPage = () => {
   const { user, categories } = useCRM();
@@ -32,6 +53,8 @@ const SettingsPage = () => {
   const [newCatName, setNewCatName] = useState('');
   const [newCatColor, setNewCatColor] = useState('217 91% 60%');
   const [addingCat, setAddingCat] = useState(false);
+  const [pushActive, setPushActive] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -47,6 +70,16 @@ const SettingsPage = () => {
       }
     });
   }, [user]);
+
+  // Detecta se este device já está inscrito
+  useEffect(() => {
+    if (!pushSupported || isInIframe || isPreviewHost) return;
+    navigator.serviceWorker.getRegistration().then(async (reg) => {
+      if (!reg) return;
+      const sub = await reg.pushManager.getSubscription();
+      setPushActive(!!sub);
+    });
+  }, []);
 
   const handleSave = async () => {
     if (!user) return;
@@ -85,17 +118,77 @@ const SettingsPage = () => {
     }
   };
 
-  const handleRequestPush = async () => {
-    if ('Notification' in window) {
-      const perm = await Notification.requestPermission();
-      if (perm === 'granted') {
-        setSettings(s => ({ ...s, notification_push: true }));
-        toast.success('Notificações push ativadas!');
-      } else {
-        toast.error('Permissão negada pelo navegador');
-      }
+  const handleEnablePush = useCallback(async () => {
+    if (!pushSupported) {
+      toast.error('Seu navegador não suporta push notifications');
+      return;
     }
-  };
+    if (isInIframe || isPreviewHost) {
+      toast.error('Push só funciona no app publicado, não no preview do editor');
+      return;
+    }
+    setPushBusy(true);
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        toast.error('Permissão negada pelo navegador');
+        return;
+      }
+      const reg = await navigator.serviceWorker.ready;
+
+      // Pega public key
+      const { data: keyData, error: keyErr } = await supabase.functions.invoke('vapid-public-key');
+      if (keyErr || !keyData?.publicKey) {
+        toast.error('Erro ao obter chave do servidor');
+        return;
+      }
+
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(keyData.publicKey).buffer as ArrayBuffer,
+      });
+
+      const subJson: any = sub.toJSON();
+      const { error: subErr } = await supabase.functions.invoke('push-subscribe', {
+        body: {
+          endpoint: sub.endpoint,
+          p256dh: subJson.keys?.p256dh,
+          auth: subJson.keys?.auth,
+          user_agent: navigator.userAgent,
+        },
+      });
+      if (subErr) {
+        toast.error('Erro ao registrar este dispositivo');
+        return;
+      }
+      setPushActive(true);
+      setSettings((s) => ({ ...s, notification_push: true }));
+      toast.success('Push notifications ativadas neste dispositivo!');
+    } catch (e: any) {
+      toast.error('Erro: ' + (e?.message || 'desconhecido'));
+    } finally {
+      setPushBusy(false);
+    }
+  }, []);
+
+  const handleDisablePush = useCallback(async () => {
+    if (!pushSupported) return;
+    setPushBusy(true);
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = await reg?.pushManager.getSubscription();
+      if (sub) {
+        await supabase.functions.invoke('push-unsubscribe', { body: { endpoint: sub.endpoint } });
+        await sub.unsubscribe();
+      }
+      setPushActive(false);
+      toast.success('Push desativado neste dispositivo');
+    } catch (e: any) {
+      toast.error('Erro ao desativar');
+    } finally {
+      setPushBusy(false);
+    }
+  }, []);
 
   return (
     <AppLayout>
@@ -138,15 +231,41 @@ const SettingsPage = () => {
               <Label>Som de notificação</Label>
               <Switch checked={settings.notification_sound} onCheckedChange={v => setSettings(s => ({ ...s, notification_sound: v }))} />
             </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <Label>Notificações push no navegador</Label>
-                <p className="text-xs text-muted-foreground mt-1">Receba alertas mesmo com a aba minimizada</p>
+
+            <div className="rounded-lg border p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <Smartphone className="h-5 w-5 mt-0.5 text-primary" />
+                  <div>
+                    <p className="font-medium text-sm">Push Notifications (PWA)</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      Receba alertas mesmo com a aba/app fechado. Funciona no celular após instalar o app.
+                    </p>
+                  </div>
+                </div>
+                <span className={`text-xs px-2 py-1 rounded-full ${pushActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                  {pushActive ? 'Ativo neste device' : 'Desativado'}
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={settings.notification_push} onCheckedChange={v => setSettings(s => ({ ...s, notification_push: v }))} />
-                {'Notification' in window && Notification.permission !== 'granted' && (
-                  <Button variant="outline" size="sm" onClick={handleRequestPush}>Permitir</Button>
+
+              {(isInIframe || isPreviewHost) && (
+                <div className="flex items-start gap-2 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-400 p-2.5 text-xs">
+                  <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>Push só funciona no app publicado (orcamentoszap.lovable.app), não dentro do preview do editor.</span>
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                {!pushActive ? (
+                  <Button onClick={handleEnablePush} disabled={pushBusy || !pushSupported} size="sm" className="gap-2">
+                    <Bell className="h-4 w-4" />
+                    {pushBusy ? 'Ativando...' : 'Ativar neste dispositivo'}
+                  </Button>
+                ) : (
+                  <Button onClick={handleDisablePush} disabled={pushBusy} size="sm" variant="outline" className="gap-2">
+                    <Trash2 className="h-4 w-4" />
+                    {pushBusy ? 'Desativando...' : 'Desativar neste dispositivo'}
+                  </Button>
                 )}
               </div>
             </div>
