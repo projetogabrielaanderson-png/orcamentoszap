@@ -116,15 +116,21 @@ export function QuickCharts() {
           <CardDescription>Top profissionais por volume</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={barConfig} className="h-[220px] w-full">
-            <BarChart data={barData} accessibilityLayer>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
-              <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="leads" fill="var(--color-leads)" radius={[6, 6, 0, 0]} />
-            </BarChart>
-          </ChartContainer>
+          {barData.length === 0 ? (
+            <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
+              Nenhum profissional cadastrado ainda
+            </div>
+          ) : (
+            <ChartContainer config={barConfig} className="h-[220px] w-full">
+              <BarChart data={barData} accessibilityLayer>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="name" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} fontSize={11} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey="leads" fill="var(--color-leads)" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
+          )}
         </CardContent>
       </Card>
     </div>
