@@ -206,6 +206,7 @@ export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
                         <SelectContent>
                           <SelectItem value="text">Texto</SelectItem>
                           <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="url">URL / Site</SelectItem>
                           <SelectItem value="textarea">Texto Longo</SelectItem>
                           <SelectItem value="select">Seleção</SelectItem>
                         </SelectContent>
