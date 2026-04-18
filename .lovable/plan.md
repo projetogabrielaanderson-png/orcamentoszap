@@ -1,94 +1,62 @@
 
-## Análise do Sistema Atual
+## Plano: PWA + Push Notifications Reais
 
-**CRM ZAP** já possui:
-- Captação de leads (formulários públicos + widget WhatsApp + Edge Function)
-- Kanban com drag & drop (4 status)
-- Página de Finalizados com filtros
-- Profissionais multi-categoria
-- Templates de mensagem com variáveis
-- Follow-ups, notas e timeline de atividades
-- Tags por lead
-- Analytics básico
-- Notificações realtime
+### Avisos importantes
+1. **Service Worker não funciona no preview do editor** (iframe + hosts `id-preview--*`). Push real só funciona em `whatsapp.assistenciatecnica.maringa.br` ou `orcamentoszap.lovable.app` após **publicar**.
+2. SW será desabilitado em dev e bloqueado em iframes/preview para evitar cache stale (regra obrigatória do Lovable).
+3. Push real precisa de chaves **VAPID** + tabela de subscriptions + Edge Function de envio.
 
-**Lacunas identificadas**:
-1. Sem automações (lead chega → ação automática)
-2. Sem distribuição inteligente entre profissionais (round-robin)
-3. Sem feedback do profissional (atendeu? fechou? perdeu?)
-4. Sem métricas de conversão por profissional
-5. Sem pipeline financeiro (valor do orçamento, ticket médio)
-6. Sem respostas rápidas para mensagens ao cliente
-7. Sem SLA/alertas de atraso
+### O que será implementado
 
----
+**Parte 1 — PWA instalável**
+- Adicionar `vite-plugin-pwa` + `workbox-window`
+- Configurar `vite.config.ts` com `injectManifest`, `devOptions.enabled: false`, `navigateFallbackDenylist: [/^\/auth/, /^\/form/]`
+- Manifest: nome "CRM ZAP", theme color, ícones 192/512 (gerados via IA com a marca)
+- Meta tags PWA no `index.html` (`theme-color`, `apple-mobile-web-app-*`)
+- **Guard de registro** em `src/main.tsx`: desregistra SW em iframes/preview, registra apenas em produção
 
-## Propostas de Melhorias
+**Parte 2 — Service Worker custom (`src/sw.ts`)**
+- Listener `push` → mostra notificação (título, body, icon, badge, data com URL)
+- Listener `notificationclick` → abre/foca a aba no `/kanban`
+- Workbox precaching do app shell
 
-### 🔥 Alto Impacto / Curto Prazo
+**Parte 3 — Backend Push**
+- **Tabela `push_subscriptions`**: `user_id`, `endpoint` (unique), `p256dh`, `auth`, `user_agent`, `created_at` + RLS (usuário gerencia só as suas)
+- **Habilitar `pg_net`** para trigger chamar Edge Function
+- **Trigger `on_lead_insert`**: dispara em `INSERT` na tabela `leads`, chama Edge Function `push-send` com `user_id` dono
+- **Edge Functions**:
+  - `vapid-public-key` (público) — retorna a public key pro client
+  - `push-subscribe` (autenticado) — salva subscription
+  - `push-unsubscribe` (autenticado) — remove subscription
+  - `push-send` (interno via service role) — busca subs do user_id e envia via `npm:web-push`
 
-**1. Distribuição Automática (Round-Robin)**
-- Quando lead chega, atribui automaticamente ao próximo profissional disponível da categoria
-- Evita "esquecer" leads, equilibra carga
-- Toggle on/off por categoria
+**Parte 4 — UI em `Settings`**
+- Botão "Ativar Push Notifications" → pede permissão → fetch da public key → `pushManager.subscribe` → POST `push-subscribe`
+- Status visual: "Ativo neste dispositivo" / "Desativado"
+- Botão para desativar deste dispositivo
+- Aviso amigável: "Funciona apenas no app publicado, não no preview"
 
-**2. Pipeline Financeiro**
-- Adicionar campo `valor_orcamento` e `valor_fechado` no lead
-- Status extra: "Ganho" vs "Perdido" (com motivo)
-- KPI: ticket médio, taxa de conversão, receita projetada
-- Funil de vendas visual
+**Parte 5 — Memória**
+- Criar `mem://features/pwa-push` documentando a arquitetura
+- Atualizar `mem://index.md`
 
-**3. Mensagens Rápidas (Quick Replies)**
-- Biblioteca de respostas prontas para usar no botão "Conversar com Cliente"
-- Variáveis dinâmicas ({{nome}}, {{categoria}})
-- Hoje só existe template para profissional, não para cliente
+### Decisões que preciso de você
 
-**4. Feedback do Profissional**
-- Link único enviado ao profissional para marcar: "Atendi" / "Fechei" / "Não consegui contato"
-- Atualiza status automaticamente sem login
-- Fecha o ciclo de informação
+Antes de implementar, preciso confirmar 3 coisas:
 
-### 📈 Médio Impacto
+**1. Chaves VAPID** — opções:
+- (a) Você gera com `npx web-push generate-vapid-keys` (ou em https://vapidkeys.com) e cola quando eu pedir → mais seguro
+- (b) Eu crio uma Edge Function temporária que gera, mostra uma vez, você salva como secret → mais rápido
 
-**5. Lead Scoring**
-- Pontuação automática baseada em: origem (UTM), categoria, horário, mensagem
-- Destaca leads "quentes" no Kanban com badge
-- Ajuda priorização
+**2. Quais eventos disparam push?**
+- (a) Só novo lead (recomendado para começar)
+- (b) Novo lead + mudanças de status
+- (c) Novo lead + SLA atrasado (cron a cada 5min)
+- (d) Todos (novo lead + status + SLA + follow-up)
 
-**6. Métricas por Profissional**
-- Dashboard individual: leads recebidos, taxa de fechamento, tempo médio de resposta
-- Ranking de performance
-- Detecta profissionais inativos
+**3. Ícones do PWA:**
+- (a) Gerar com IA (logo CRM ZAP nas cores da marca) — recomendado
+- (b) Usar o favicon atual ampliado (qualidade limitada)
+- (c) Você envia os PNGs depois (uso placeholder por enquanto)
 
-**7. SLA & Alertas de Atraso**
-- Lead "Novo" há mais de X minutos → alerta vermelho
-- Lead "Aguardando Profissional" há mais de Y horas → notificação
-- Banner no topo do Kanban
-
----
-
-## Recomendação de Priorização
-
-```text
-Sprint 1 (essencial para vendas):
-├── Pipeline Financeiro (valor + Ganho/Perdido)
-└── Mensagens Rápidas para cliente
-
-Sprint 2 (eficiência operacional):
-├── Distribuição Automática Round-Robin
-└── SLA & Alertas de Atraso
-
-Sprint 3 (fechar o ciclo):
-├── Feedback do Profissional via link único
-└── Métricas por Profissional
-```
-
-## Detalhes Técnicos (referência)
-
-- **Pipeline financeiro**: nova migration adicionando `quote_value`, `closed_value`, `lost_reason` na tabela `leads`; novo enum `outcome` (`won`/`lost`).
-- **Round-robin**: campo `auto_assign` em `categories` + função SQL que retorna próximo profissional ordenado por `leads_count` ASC.
-- **Feedback profissional**: nova tabela `lead_feedback_tokens` (uuid público) + Edge Function pública `lead-feedback`.
-- **Quick replies**: estender `message_templates` com coluna `audience` (`professional` | `client`).
-- **SLA**: configuração em `user_settings` (minutos) + cálculo client-side no Kanban.
-
-Qual bloco quer implementar primeiro? Sugiro começar pelo **Pipeline Financeiro + Mensagens Rápidas** (Sprint 1), que entregam maior retorno imediato.
+**Responda nas 3 perguntas e eu prossigo com a implementação completa.**
