@@ -150,7 +150,7 @@ interface Step {
   label: string;
   subtitle?: string;
   placeholder: string;
-  type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'terms' | 'schedule';
+  type: 'text' | 'email' | 'url' | 'tel' | 'textarea' | 'select' | 'terms' | 'schedule';
   required: boolean;
   icon: typeof User;
   options?: string[];
