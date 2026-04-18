@@ -58,6 +58,7 @@ const App = () => (
       <CRMProvider>
         <Toaster />
         <Sonner />
+        <PushSoundBridge />
         <BrowserRouter>
           <Routes>
             <Route path="/auth" element={<AuthRoute />} />
