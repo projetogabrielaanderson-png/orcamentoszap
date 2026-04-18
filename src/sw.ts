@@ -30,10 +30,10 @@ self.addEventListener('push', (event: PushEvent) => {
     badge: data.badge || '/pwa-192x192.png',
     data: data.data || { url: '/kanban', sound },
     tag: 'crmzap-lead',
-    renotify: true,
     requireInteraction: true,
-    ...(vibrateOn ? { vibrate: [200, 100, 200] as any } : {}),
-  };
+    ...(vibrateOn ? { vibrate: [200, 100, 200] } : {}),
+    ...({ renotify: true } as any),
+  } as NotificationOptions;
 
   event.waitUntil(
     (async () => {
