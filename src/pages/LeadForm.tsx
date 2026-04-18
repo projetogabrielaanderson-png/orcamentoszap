@@ -229,7 +229,7 @@ const LeadFormPage = () => {
       label: field.label,
       subtitle: field.required ? 'Campo obrigatório' : 'Opcional',
       placeholder: field.label,
-      type: field.type === 'select' ? 'select' as const : field.type === 'textarea' ? 'textarea' as const : field.type === 'email' ? 'email' as const : 'text' as const,
+      type: field.type === 'select' ? 'select' as const : field.type === 'textarea' ? 'textarea' as const : field.type === 'email' ? 'email' as const : field.type === 'url' ? 'url' as const : 'text' as const,
       required: field.required,
       icon: MessageSquare,
       options: field.options,
