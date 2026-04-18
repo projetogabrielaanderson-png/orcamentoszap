@@ -420,12 +420,7 @@ const LeadFormPage = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   }, [whatsappNumber, values.name, values.phone, values.message]);
 
-  useEffect(() => {
-    if (phase === 'done' && hasWhatsApp) {
-      const timer = setTimeout(openWhatsApp, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [phase, hasWhatsApp, openWhatsApp]);
+  // Redirecionamento automático removido — usuário deve clicar manualmente no botão do WhatsApp.
 
   const primaryColor = formConfig.primary_color;
   const lightenColor = (hex: string, amount: number) => {
@@ -527,15 +522,11 @@ const LeadFormPage = () => {
           <p className="mt-4 text-gray-500 text-base">
             Recebemos sua solicitação, <span className="font-semibold text-gray-700">{values.name}</span>.
           </p>
-          {hasWhatsApp ? (
-            <p className="mt-1 text-sm text-gray-400">
-              Você será redirecionado para o WhatsApp em instantes...
-            </p>
-          ) : (
-            <p className="mt-1 text-sm text-gray-400">
-              Um profissional entrará em contato pelo WhatsApp em breve.
-            </p>
-          )}
+          <p className="mt-1 text-sm text-gray-400">
+            {hasWhatsApp
+              ? 'Se preferir, fale agora mesmo conosco pelo WhatsApp clicando no botão abaixo.'
+              : 'Um profissional entrará em contato pelo WhatsApp em breve.'}
+          </p>
           <div className="mt-8 rounded-2xl border-2 p-5 text-left text-sm animate-in slide-in-from-bottom-4 duration-700 delay-300" style={{ borderColor: `${primaryColor}30`, backgroundColor: `${primaryColor}05` }}>
             <p className="font-semibold mb-3" style={{ color: primaryColor }}>Resumo da solicitação:</p>
             <div className="space-y-2 text-gray-600">
