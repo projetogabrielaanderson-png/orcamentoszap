@@ -75,8 +75,8 @@ const App = () => (
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </CRMProvider>
+        </CRMProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
