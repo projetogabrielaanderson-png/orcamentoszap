@@ -420,12 +420,7 @@ const LeadFormPage = () => {
     window.open(url, '_blank', 'noopener,noreferrer');
   }, [whatsappNumber, values.name, values.phone, values.message]);
 
-  useEffect(() => {
-    if (phase === 'done' && hasWhatsApp) {
-      const timer = setTimeout(openWhatsApp, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [phase, hasWhatsApp, openWhatsApp]);
+  // Redirecionamento automático removido — usuário deve clicar manualmente no botão do WhatsApp.
 
   const primaryColor = formConfig.primary_color;
   const lightenColor = (hex: string, amount: number) => {
