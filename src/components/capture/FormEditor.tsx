@@ -131,7 +131,7 @@ export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Categoria</Label>
-                <Select value={form.category_id} onValueChange={v => update({ category_id: v })} disabled={!!form.id}>
+                <Select value={form.category_id} onValueChange={v => update({ category_id: v })}>
                   <SelectTrigger><SelectValue placeholder="Selecione a categoria" /></SelectTrigger>
                   <SelectContent>
                     {categories.map(c => (
