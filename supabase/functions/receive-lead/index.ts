@@ -111,11 +111,40 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (!catExists) {
-      console.warn(`category_id ${categoryId} não existe no banco`);
-      return new Response(JSON.stringify({ error: "Categoria informada não existe. Regenere o embed/link do formulário." }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.warn(`category_id ${categoryId} não existe no banco — tentando fallback`);
+
+      // Fallback 1: tentar primeira categoria do usuário (via professionals)
+      let fallbackCategoryId: string | null = null;
+      if (userId) {
+        const { data: proCat } = await supabase
+          .from("professionals")
+          .select("category_id")
+          .eq("user_id", userId)
+          .limit(1)
+          .maybeSingle();
+        fallbackCategoryId = proCat?.category_id ?? null;
+      }
+
+      // Fallback 2: primeira categoria global do banco
+      if (!fallbackCategoryId) {
+        const { data: anyCat } = await supabase
+          .from("categories")
+          .select("id")
+          .limit(1)
+          .maybeSingle();
+        fallbackCategoryId = anyCat?.id ?? null;
+      }
+
+      if (!fallbackCategoryId) {
+        console.error("Nenhuma categoria disponível para fallback");
+        return new Response(JSON.stringify({ error: "Categoria informada não existe e nenhuma categoria padrão foi encontrada. Recadastre o formulário." }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      console.log(`Usando categoria fallback ${fallbackCategoryId} para embed obsoleto`);
+      categoryId = fallbackCategoryId;
     }
 
 
