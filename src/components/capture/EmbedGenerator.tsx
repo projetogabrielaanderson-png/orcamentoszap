@@ -134,7 +134,7 @@ export function EmbedGenerator({ formConfig }: EmbedGeneratorProps) {
   const [copied, setCopied] = useState<'embed' | 'link' | 'widget' | null>(null);
   const { user } = useCRM();
 
-  const baseUrl = 'https://orcamentoszap.lovable.app';
+  const baseUrl = 'https://whatsapp.assistenciatecnica.maringa.br';
   const ownerId = user?.id ?? '';
 
   const directLink = `${baseUrl}/form?category_id=${formConfig.category_id}&owner=${encodeURIComponent(ownerId)}&origin=${encodeURIComponent(siteUrl)}`;
