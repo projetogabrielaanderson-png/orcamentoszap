@@ -7,8 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Plus, Trash2, Bell, Building2, Palette, Smartphone, AlertCircle } from 'lucide-react';
+import { Save, Plus, Trash2, Bell, Building2, Palette, Smartphone, AlertCircle, Play, Send } from 'lucide-react';
+import { playNotificationSound } from '@/hooks/usePushSoundListener';
 
 interface UserSettings {
   company_name: string;
@@ -16,7 +19,19 @@ interface UserSettings {
   company_phone: string;
   notification_sound: boolean;
   notification_push: boolean;
+  push_title_template: string;
+  push_body_template: string;
+  push_sound: string;
+  push_vibrate: boolean;
 }
+
+const SOUND_OPTIONS = [
+  { value: 'default', label: 'Padrão do sistema' },
+  { value: 'bell', label: '🔔 Sino' },
+  { value: 'chime', label: '🎵 Chime' },
+  { value: 'alert', label: '⚠️ Alerta' },
+  { value: 'none', label: 'Sem som' },
+];
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
