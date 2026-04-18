@@ -15,7 +15,7 @@ import { FormPreview } from './FormPreview';
 
 export interface CustomField {
   label: string;
-  type: 'text' | 'email' | 'select' | 'textarea';
+  type: 'text' | 'email' | 'url' | 'select' | 'textarea';
   required: boolean;
   options?: string[];
 }
@@ -206,6 +206,7 @@ export function FormEditor({ config, onSave, onBack }: FormEditorProps) {
                         <SelectContent>
                           <SelectItem value="text">Texto</SelectItem>
                           <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="url">URL / Site</SelectItem>
                           <SelectItem value="textarea">Texto Longo</SelectItem>
                           <SelectItem value="select">Seleção</SelectItem>
                         </SelectContent>
