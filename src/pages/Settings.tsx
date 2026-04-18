@@ -215,6 +215,43 @@ const SettingsPage = () => {
     }
   }, []);
 
+  const handleTestPush = async () => {
+    if (!user) return;
+    if (!pushActive) {
+      toast.error('Ative o push neste dispositivo antes de testar');
+      return;
+    }
+    setTestingPush(true);
+    // Salva primeiro pra garantir que a edge function leia os templates atuais
+    await supabase.from('user_settings').upsert(
+      { user_id: user.id, ...settings } as any,
+      { onConflict: 'user_id' }
+    );
+    const { error } = await supabase.functions.invoke('push-send', {
+      body: {
+        user_id: user.id,
+        lead_name: 'João da Silva',
+        lead_phone: '(11) 98765-4321',
+        is_test: true,
+      },
+    });
+    setTestingPush(false);
+    if (error) toast.error('Erro ao enviar push de teste');
+    else toast.success('Push de teste enviado!');
+  };
+
+  const handlePreviewSound = () => {
+    if (settings.push_sound === 'none') {
+      toast.info('Som está desativado');
+      return;
+    }
+    if (settings.push_sound === 'default') {
+      toast.info('Som padrão é controlado pelo sistema operacional');
+      return;
+    }
+    playNotificationSound(settings.push_sound);
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6 max-w-3xl">
@@ -293,6 +330,78 @@ const SettingsPage = () => {
                   </Button>
                 )}
               </div>
+            </div>
+
+            {/* Personalização */}
+            <div className="rounded-lg border p-4 space-y-4">
+              <div>
+                <p className="font-medium text-sm">Personalização da mensagem</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Use variáveis: <code className="text-primary">{'{{nome}}'}</code>, <code className="text-primary">{'{{telefone}}'}</code>, <code className="text-primary">{'{{categoria}}'}</code>, <code className="text-primary">{'{{empresa}}'}</code>
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Título da notificação</Label>
+                <Input
+                  value={settings.push_title_template}
+                  onChange={e => setSettings(s => ({ ...s, push_title_template: e.target.value }))}
+                  placeholder="🔔 Novo Lead — {{empresa}}"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs">Corpo da notificação</Label>
+                <Textarea
+                  value={settings.push_body_template}
+                  onChange={e => setSettings(s => ({ ...s, push_body_template: e.target.value }))}
+                  placeholder="{{nome}} • {{telefone}}"
+                  rows={2}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-end">
+                <div className="space-y-2">
+                  <Label className="text-xs">Som ao receber</Label>
+                  <Select
+                    value={settings.push_sound}
+                    onValueChange={v => setSettings(s => ({ ...s, push_sound: v }))}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {SOUND_OPTIONS.map(o => (
+                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="button" variant="outline" size="sm" onClick={handlePreviewSound} className="gap-2">
+                  <Play className="h-4 w-4" /> Testar som
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm">Vibrar dispositivo</Label>
+                  <p className="text-xs text-muted-foreground">Ideal para celulares no silencioso</p>
+                </div>
+                <Switch
+                  checked={settings.push_vibrate}
+                  onCheckedChange={v => setSettings(s => ({ ...s, push_vibrate: v }))}
+                />
+              </div>
+
+              <Button
+                type="button"
+                onClick={handleTestPush}
+                disabled={testingPush || !pushActive}
+                size="sm"
+                variant="secondary"
+                className="gap-2 w-full sm:w-auto"
+              >
+                <Send className="h-4 w-4" />
+                {testingPush ? 'Enviando...' : 'Enviar push de teste'}
+              </Button>
             </div>
           </CardContent>
         </Card>
