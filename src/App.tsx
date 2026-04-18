@@ -17,8 +17,14 @@ import SettingsPage from "./pages/Settings.tsx";
 import TermosPage from "./pages/Termos.tsx";
 import PrivacidadePage from "./pages/Privacidade.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import { usePushSoundListener } from "@/hooks/usePushSoundListener";
 
 const queryClient = new QueryClient();
+
+function PushSoundBridge() {
+  usePushSoundListener();
+  return null;
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useCRM();
