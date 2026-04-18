@@ -7,7 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface CustomField {
   label: string;
-  type: 'text' | 'email' | 'select' | 'textarea';
+  type: 'text' | 'email' | 'url' | 'select' | 'textarea';
   required: boolean;
   options?: string[];
 }
