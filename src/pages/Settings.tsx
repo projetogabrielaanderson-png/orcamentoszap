@@ -243,7 +243,7 @@ const SettingsPage = () => {
                     </p>
                   </div>
                 </div>
-                <span className={`text-xs px-2 py-1 rounded-full ${pushActive ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground'}`}>
+                <span className={`text-xs px-2 py-1 rounded-full ${pushActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                   {pushActive ? 'Ativo neste device' : 'Desativado'}
                 </span>
               </div>
