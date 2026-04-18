@@ -63,6 +63,10 @@ const SettingsPage = () => {
     company_phone: '',
     notification_sound: true,
     notification_push: false,
+    push_title_template: '🔔 Novo Lead — {{empresa}}',
+    push_body_template: '{{nome}} • {{telefone}}',
+    push_sound: 'default',
+    push_vibrate: true,
   });
   const [saving, setSaving] = useState(false);
   const [newCatName, setNewCatName] = useState('');
@@ -70,17 +74,23 @@ const SettingsPage = () => {
   const [addingCat, setAddingCat] = useState(false);
   const [pushActive, setPushActive] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
+  const [testingPush, setTestingPush] = useState(false);
 
   useEffect(() => {
     if (!user) return;
     supabase.from('user_settings').select('*').eq('user_id', user.id).maybeSingle().then(({ data }) => {
       if (data) {
+        const d = data as any;
         setSettings({
-          company_name: (data as any).company_name || '',
-          company_logo: (data as any).company_logo || '',
-          company_phone: (data as any).company_phone || '',
-          notification_sound: (data as any).notification_sound ?? true,
-          notification_push: (data as any).notification_push ?? false,
+          company_name: d.company_name || '',
+          company_logo: d.company_logo || '',
+          company_phone: d.company_phone || '',
+          notification_sound: d.notification_sound ?? true,
+          notification_push: d.notification_push ?? false,
+          push_title_template: d.push_title_template || '🔔 Novo Lead — {{empresa}}',
+          push_body_template: d.push_body_template || '{{nome}} • {{telefone}}',
+          push_sound: d.push_sound || 'default',
+          push_vibrate: d.push_vibrate ?? true,
         });
       }
     });
