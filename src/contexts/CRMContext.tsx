@@ -13,6 +13,7 @@ interface CRMContextType {
   loading: boolean;
   updateLeadStatus: (id: string, status: LeadStatus) => void;
   assignProfessional: (leadId: string, professionalId: string) => void;
+  deleteLead: (id: string) => Promise<void>;
   addProfessional: (pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => void;
   updateProfessional: (id: string, pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => void;
   deleteProfessional: (id: string) => void;
@@ -104,6 +105,13 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
     if (error) { toast.error('Erro ao atribuir profissional'); refreshLeads(); }
   }, [refreshLeads]);
 
+  const deleteLead = useCallback(async (id: string) => {
+    setLeads(prev => prev.filter(l => l.id !== id));
+    const { error } = await supabase.from('leads').delete().eq('id', id);
+    if (error) { toast.error('Erro ao excluir lead'); refreshLeads(); return; }
+    toast.success('Lead excluído');
+  }, [refreshLeads]);
+
   const addProfessional = useCallback(async (pro: { name: string; category_id?: string; category_ids?: string[]; whatsapp: string }) => {
     if (!user) return;
     const { category_ids, ...rest } = pro;
@@ -150,7 +158,7 @@ export function CRMProvider({ children }: { children: React.ReactNode }) {
   return (
     <CRMContext.Provider value={{
       leads, leadsLoaded, professionals, categories, user, loading,
-      updateLeadStatus, assignProfessional, addProfessional, updateProfessional, deleteProfessional,
+      updateLeadStatus, assignProfessional, deleteLead, addProfessional, updateProfessional, deleteProfessional,
       getCategoryName, getCategoryColor, getProfessionalName, signOut, refreshLeads,
     }}>
       {children}
