@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { Lead, STATUS_CONFIG, LeadStatus } from '@/types/crm';
 import { useCRM } from '@/contexts/CRMContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,9 +55,9 @@ function DetailItem({
   children,
   iconClassName = "bg-primary/10 text-primary",
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   label: string;
-  children: React.ReactNode;
+  children: ReactNode;
   iconClassName?: string;
 }) {
   return (
