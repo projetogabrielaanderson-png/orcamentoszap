@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
-import { CheckCircle, Loader2, ArrowRight, ArrowLeft, Send, Shield, User, Phone, MessageSquare, CalendarDays, FileCheck, Check } from 'lucide-react';
+import { CheckCircle, Loader2, ArrowRight, ArrowLeft, Send, Shield, ShieldCheck, User, Phone, MessageSquare, CalendarDays, FileCheck, Check, ClipboardList } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CustomField {
@@ -512,40 +512,98 @@ const LeadFormPage = () => {
           />
         </div>
 
-        <div className="relative w-full max-w-md rounded-3xl bg-white/95 backdrop-blur-sm p-8 sm:p-12 text-center shadow-2xl animate-in fade-in zoom-in-95 duration-500">
-          <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-full animate-in zoom-in duration-700" style={{ backgroundColor: `${primaryColor}15` }}>
-            <div className="flex h-16 w-16 items-center justify-center rounded-full animate-in spin-in-180 duration-700" style={{ backgroundColor: `${primaryColor}25` }}>
-              <CheckCircle className="h-8 w-8" style={{ color: primaryColor }} />
+        <div className="relative w-full max-w-md overflow-hidden rounded-[28px] bg-white shadow-[0_20px_60px_-15px_rgba(16,185,129,0.25)] ring-1 ring-emerald-100 animate-in fade-in zoom-in-95 duration-500">
+          {/* Decorative soft blobs */}
+          <div className="pointer-events-none absolute -top-10 -right-10 h-48 w-48 rounded-full bg-emerald-100/40 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-24 -left-10 h-40 w-40 rounded-full bg-emerald-50 blur-2xl" />
+
+          <div className="relative px-7 pt-10 pb-6 sm:px-10 text-center">
+            {/* Check icon with sparkles */}
+            <div className="relative mx-auto mb-7 h-28 w-28">
+              <div className="absolute inset-0 rounded-full bg-emerald-50" />
+              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-emerald-100/80 to-white" />
+              <div className="relative flex h-full w-full items-center justify-center">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full border-[3px] border-emerald-500 bg-white animate-in zoom-in duration-700">
+                  <Check className="h-10 w-10 text-emerald-500" strokeWidth={3} />
+                </div>
+              </div>
+              {/* Sparkles */}
+              <span className="absolute top-1 left-0 h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <span className="absolute top-6 -left-2 h-1 w-3 rotate-45 rounded-full bg-emerald-300" />
+              <span className="absolute top-0 right-6 h-1.5 w-1.5 rounded-full bg-amber-300" />
+              <span className="absolute -top-1 right-0 h-2 w-2 rotate-12 text-amber-400">✦</span>
+              <span className="absolute top-8 -right-3 h-1 w-3 -rotate-12 rounded-full bg-emerald-300" />
+              <span className="absolute bottom-2 left-2 h-1 w-1 rounded-full bg-emerald-400" />
+              <span className="absolute bottom-4 right-1 h-1 w-1 rounded-full bg-amber-300" />
+            </div>
+
+            <h2 className="text-3xl sm:text-[34px] font-extrabold tracking-tight text-slate-900 leading-tight">
+              Enviado com sucesso!
+            </h2>
+            <div className="mt-2 text-2xl">🎉</div>
+
+            <p className="mt-4 text-[15px] text-slate-600">
+              Recebemos sua solicitação, <span className="font-bold text-emerald-600">{values.name}</span>.
+            </p>
+            <p className="mt-1 text-[14px] text-slate-400 leading-relaxed">
+              {hasWhatsApp
+                ? 'Se preferir, fale agora mesmo conosco pelo WhatsApp clicando no botão abaixo.'
+                : 'Um profissional entrará em contato pelo WhatsApp em breve.'}
+            </p>
+
+            {/* Resumo */}
+            <div className="mt-7 rounded-2xl border border-emerald-100 bg-emerald-50/30 p-5 text-left animate-in slide-in-from-bottom-4 duration-700 delay-300">
+              <div className="flex items-center gap-3 pb-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100">
+                  <ClipboardList className="h-5 w-5 text-emerald-600" />
+                </div>
+                <p className="font-bold text-emerald-600 text-[15px]">Resumo da solicitação:</p>
+              </div>
+              <div className="divide-y divide-emerald-100/70">
+                <div className="flex items-center gap-3 py-3">
+                  <User className="h-5 w-5 text-emerald-500 shrink-0" strokeWidth={1.75} />
+                  <span className="text-slate-700 text-[15px]">{values.name}</span>
+                </div>
+                <div className="flex items-center gap-3 py-3">
+                  <Phone className="h-5 w-5 text-emerald-500 shrink-0" strokeWidth={1.75} />
+                  <span className="text-slate-700 text-[15px]">{values.phone}</span>
+                </div>
+                {values.schedule_date && (
+                  <div className="flex items-center gap-3 py-3">
+                    <CalendarDays className="h-5 w-5 text-emerald-500 shrink-0" strokeWidth={1.75} />
+                    <span className="text-slate-700 text-[15px]">
+                      {values.schedule_date}{values.schedule_period && ` — ${values.schedule_period}`}
+                    </span>
+                  </div>
+                )}
+                {values.message && (
+                  <div className="flex items-center gap-3 py-3">
+                    <MessageSquare className="h-5 w-5 text-emerald-500 shrink-0" strokeWidth={1.75} />
+                    <span className="text-slate-700 text-[15px] break-words">{values.message}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {hasWhatsApp && (
+              <button
+                onClick={openWhatsApp}
+                className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-white font-semibold text-base shadow-lg shadow-emerald-500/25 transition-all hover:shadow-emerald-500/40 active:scale-[0.98]"
+                style={{ backgroundColor: '#25D366' }}
+              >
+                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.38 0-4.591-.686-6.462-1.871l-.45-.274-2.633.883.883-2.633-.274-.45A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+                Abrir WhatsApp Agora
+              </button>
+            )}
+          </div>
+
+          {/* Footer trust band */}
+          <div className="relative border-t border-emerald-100 bg-gradient-to-r from-emerald-50/60 via-emerald-50/80 to-emerald-50/60 px-6 py-4">
+            <div className="flex items-center justify-center gap-2 text-[13px] text-slate-500">
+              <ShieldCheck className="h-4 w-4 text-emerald-500" />
+              <span>Sua solicitação está segura conosco.</span>
             </div>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Enviado com sucesso! 🎉</h2>
-          <p className="mt-4 text-gray-500 text-base">
-            Recebemos sua solicitação, <span className="font-semibold text-gray-700">{values.name}</span>.
-          </p>
-          <p className="mt-1 text-sm text-gray-400">
-            {hasWhatsApp
-              ? 'Se preferir, fale agora mesmo conosco pelo WhatsApp clicando no botão abaixo.'
-              : 'Um profissional entrará em contato pelo WhatsApp em breve.'}
-          </p>
-          <div className="mt-8 rounded-2xl border-2 p-5 text-left text-sm animate-in slide-in-from-bottom-4 duration-700 delay-300" style={{ borderColor: `${primaryColor}30`, backgroundColor: `${primaryColor}05` }}>
-            <p className="font-semibold mb-3" style={{ color: primaryColor }}>Resumo da solicitação:</p>
-            <div className="space-y-2 text-gray-600">
-              <p className="flex items-center gap-2"><User className="h-4 w-4 text-gray-400" /> {values.name}</p>
-              <p className="flex items-center gap-2"><Phone className="h-4 w-4 text-gray-400" /> {values.phone}</p>
-              {values.schedule_date && <p className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-gray-400" /> {values.schedule_date} {values.schedule_period && `— ${values.schedule_period}`}</p>}
-              {values.message && <p className="flex items-center gap-2"><MessageSquare className="h-4 w-4 text-gray-400" /> {values.message}</p>}
-            </div>
-          </div>
-          {hasWhatsApp && (
-            <button
-              onClick={openWhatsApp}
-              className="mt-6 w-full flex items-center justify-center gap-2 rounded-xl py-3 text-white font-semibold text-base transition-transform active:scale-95"
-              style={{ backgroundColor: '#25D366' }}
-            >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.611.611l4.458-1.495A11.953 11.953 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.38 0-4.591-.686-6.462-1.871l-.45-.274-2.633.883.883-2.633-.274-.45A9.963 9.963 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-              Abrir WhatsApp Agora
-            </button>
-          )}
         </div>
       </div>
     );
