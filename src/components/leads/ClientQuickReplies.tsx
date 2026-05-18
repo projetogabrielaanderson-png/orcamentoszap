@@ -5,7 +5,7 @@ import { useCRM } from '@/contexts/CRMContext';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageCircle, Send, Sparkles } from 'lucide-react';
+import { MessageCircle, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { logLeadActivity } from '@/components/leads/LeadActivityTimeline';
 
@@ -102,10 +102,10 @@ export function ClientQuickReplies({ lead, onSent }: ClientQuickRepliesProps) {
   };
 
   return (
-    <div className="space-y-3 rounded-lg border bg-card p-4">
+    <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm sm:p-5">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <h4 className="text-sm font-semibold">Resposta rápida ao cliente</h4>
+        <h4 className="text-base font-semibold">Resposta rápida ao cliente</h4>
       </div>
 
       {templates.length > 0 ? (
@@ -131,13 +131,16 @@ export function ClientQuickReplies({ lead, onSent }: ClientQuickRepliesProps) {
       <Textarea
         value={message}
         onChange={e => setMessage(e.target.value)}
-        className="min-h-[140px] text-sm"
+        className="min-h-[168px] resize-none bg-background text-sm leading-relaxed"
         placeholder="Mensagem ao cliente..."
       />
+      <div className="-mt-8 flex justify-end pr-3 text-xs text-muted-foreground">
+        {message.length}/1000
+      </div>
 
       <Button
         onClick={handleSend}
-        className="w-full gap-2 bg-status-done hover:bg-status-done/90 text-white"
+        className="h-12 w-full gap-2 bg-status-done text-success-foreground shadow-lg shadow-success/20 hover:bg-status-done/90"
       >
         <MessageCircle className="h-4 w-4" /> Enviar via WhatsApp
       </Button>
