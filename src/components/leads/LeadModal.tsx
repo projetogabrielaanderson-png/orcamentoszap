@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Phone, MessageSquare, Globe, Calendar, Send, UserCheck, Tag, StickyNote, Activity, CalendarClock, MessageCircle, DollarSign } from 'lucide-react';
+import { Phone, MessageSquare, Globe, Calendar, Send, UserCheck, Tag, StickyNote, Activity, CalendarClock, MessageCircle, DollarSign, Zap, ExternalLink, SquareDashedMousePointer } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { toast } from 'sonner';
@@ -46,6 +46,30 @@ function applyTemplate(content: string, pro: { name: string }, lead: Lead, categ
 }
 
 const FALLBACK_TEMPLATE = `Olá {{profissional}}! Temos um novo lead para você:\n\n◆ Nome: {{lead_nome}}\n◆ Telefone: {{lead_telefone}}\n◆ Mensagem: {{lead_mensagem}}\n◆ Categoria: {{categoria}}`;
+
+const detailIconClass = "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg";
+
+function DetailItem({
+  icon,
+  label,
+  children,
+  iconClassName = "bg-primary/10 text-primary",
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+  iconClassName?: string;
+}) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className={`${detailIconClass} ${iconClassName}`}>{icon}</div>
+      <div className="min-w-0 flex-1 pt-0.5">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <div className="mt-0.5 text-sm font-medium leading-relaxed text-foreground">{children}</div>
+      </div>
+    </div>
+  );
+}
 
 export function LeadModal({ lead, onClose }: LeadModalProps) {
   const { getCategoryName, professionals, categories, updateLeadStatus, assignProfessional, user } = useCRM();
