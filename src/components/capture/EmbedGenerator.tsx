@@ -13,7 +13,7 @@ interface EmbedGeneratorProps {
   formConfig: FormConfig;
 }
 
-function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, siteUrl: string, edgeEndpoint: string, ownerId: string) {
+function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, siteUrl: string, edgeEndpoint: string, ownerId: string, formConfigId: string) {
   const c = config.primary_color || '#075E54';
   return `<!-- Widget WhatsApp Glassmorphism -->
 <style>
@@ -116,7 +116,7 @@ if(!a.checked){$('ea').classList.add('s');v=0}
 if(!v)return;
 busy=1;
 var ph=dg.indexOf('55')===0?dg:'55'+dg;
-fetch('${edgeEndpoint}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nm,phone:ph,message:mg,user_id:'${ownerId}',category_id:'${config.category_id}',origin_url:'${siteUrl}'})}).catch(function(){});
+fetch('${edgeEndpoint}',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:nm,phone:ph,message:mg,user_id:'${ownerId}',category_id:'${config.category_id}',form_config_id:'${formConfigId}',origin_url:'${siteUrl}'})}).catch(function(){});
 var msg=encodeURIComponent('Olá! Meu nome é '+nm+'.\\n'+(mg?mg+'\\n':'')+'Tel: +'+ph);
 waUrl='https://wa.me/${whatsappNumber}?text='+msg;
 f.style.display='none';ok.classList.add('s');
@@ -137,7 +137,8 @@ export function EmbedGenerator({ formConfig }: EmbedGeneratorProps) {
   const baseUrl = 'https://whatsapp.assistenciatecnica.maringa.br';
   const ownerId = user?.id ?? '';
 
-  const directLink = `${baseUrl}/form?category_id=${formConfig.category_id}&owner=${encodeURIComponent(ownerId)}&origin=${encodeURIComponent(siteUrl)}`;
+  const formConfigId = formConfig.id ?? '';
+  const directLink = `${baseUrl}/form?form_config_id=${formConfigId}&category_id=${formConfig.category_id}&owner=${encodeURIComponent(ownerId)}&origin=${encodeURIComponent(siteUrl)}`;
 
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const edgeEndpoint = `${supabaseUrl}/functions/v1/receive-lead`;
@@ -152,11 +153,12 @@ export function EmbedGenerator({ formConfig }: EmbedGeneratorProps) {
     <input type="hidden" name="origin_url" value="${siteUrl}" />
     <input type="hidden" name="user_id" value="${ownerId}" />
     <input type="hidden" name="category_id" value="${formConfig.category_id}" />
+    <input type="hidden" name="form_config_id" value="${formConfigId}" />
     <button type="submit" style="padding:12px;background:${formConfig.primary_color};color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">Enviar</button>
   </form>
 </div>`;
 
-  const widgetCode = generateWhatsAppWidgetHTML(formConfig, whatsappNumber, siteUrl, edgeEndpoint, ownerId);
+  const widgetCode = generateWhatsAppWidgetHTML(formConfig, whatsappNumber, siteUrl, edgeEndpoint, ownerId, formConfigId);
 
   const handleCopy = (text: string, type: 'embed' | 'link' | 'widget') => {
     navigator.clipboard.writeText(text);
