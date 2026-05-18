@@ -18,6 +18,7 @@ type LeadPayload = {
   category_id?: string;
   user_id?: string;
   owner?: string;
+  form_config_id?: string;
 };
 
 const normalize = (value: unknown) => (typeof value === "string" ? value.trim() : "");
@@ -75,6 +76,24 @@ Deno.serve(async (req) => {
     const utmCampaign = normalize(rawBody.utm_campaign);
     let categoryId = normalize(rawBody.category_id);
     let userId = normalize(rawBody.user_id) || normalize(rawBody.owner);
+    const formConfigId = normalize(rawBody.form_config_id);
+
+    // Se veio form_config_id, busca a categoria e o dono ATUAIS do formulário
+    // (assim, editar o form no painel reflete imediatamente em embeds já publicados).
+    if (formConfigId) {
+      const { data: fc } = await supabase
+        .from("form_configs")
+        .select("category_id, user_id")
+        .eq("id", formConfigId)
+        .maybeSingle();
+      if (fc) {
+        categoryId = fc.category_id || categoryId;
+        userId = fc.user_id || userId;
+        console.log("Resolved from form_config:", { formConfigId, categoryId, userId });
+      } else {
+        console.warn("form_config_id não encontrado:", formConfigId);
+      }
+    }
 
     console.log("Processing lead:", { name, phone, categoryId, userId, originUrl });
 
