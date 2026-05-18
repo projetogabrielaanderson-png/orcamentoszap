@@ -2,7 +2,12 @@ import { Lead } from '@/types/crm';
 import { useCRM } from '@/contexts/CRMContext';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Globe, Trophy, XCircle, DollarSign } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Clock, Globe, Trophy, XCircle, DollarSign, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -18,7 +23,7 @@ const formatBRLCompact = (n: number) =>
     : `R$ ${n.toFixed(0)}`;
 
 export function LeadCard({ lead, onClick, isNew }: LeadCardProps) {
-  const { getCategoryName } = useCRM();
+  const { getCategoryName, deleteLead } = useCRM();
 
   const timeAgo = formatDistanceToNow(new Date(lead.created_at), {
     addSuffix: true,
@@ -34,7 +39,37 @@ export function LeadCard({ lead, onClick, isNew }: LeadCardProps) {
         isNew ? 'border-primary/30 shadow-sm animate-pulse-glow' : 'border-border'
       }`}
     >
-      <CardContent className="p-3.5">
+      <CardContent className="p-3.5 relative group">
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => e.stopPropagation()}
+              className="absolute right-1 top-1 h-7 w-7 opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-opacity"
+              aria-label="Excluir lead"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir lead?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta ação não pode ser desfeita. O lead <span className="font-semibold">{lead.name}</span> será removido permanentemente.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteLead(lead.id)}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
         <div className="flex items-start justify-between gap-2">
           <h4 className="text-sm font-semibold leading-tight">{lead.name}</h4>
           <div className="flex shrink-0 flex-col items-end gap-1">
