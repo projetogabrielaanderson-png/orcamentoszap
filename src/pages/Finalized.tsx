@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useCRM } from '@/contexts/CRMContext';
 import { Lead, STATUS_CONFIG } from '@/types/crm';
@@ -24,6 +24,8 @@ export default function FinalizedPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [sortBy, setSortBy] = useState<'date' | 'name' | 'category'>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const finalizedLeads = useMemo(() => {
     return leads.filter(l => l.status === 'done');
@@ -88,6 +90,12 @@ export default function FinalizedPage() {
   }, [finalizedLeads, search, categoryFilter, professionalFilter, dateFrom, dateTo, tagFilter, sortBy, sortDir, getCategoryName]);
 
   const hasActiveFilters = search || categoryFilter !== 'all' || professionalFilter !== 'all' || dateFrom || dateTo || tagFilter;
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  useEffect(() => { setPage(1); }, [search, categoryFilter, professionalFilter, dateFrom, dateTo, tagFilter, sortBy, sortDir, pageSize]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
+  const paginated = useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page, pageSize]);
 
   const clearFilters = () => {
     setSearch('');
@@ -291,7 +299,7 @@ export default function FinalizedPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filtered.map(lead => (
+                    {paginated.map(lead => (
                       <TableRow
                         key={lead.id}
                         className="cursor-pointer hover:bg-muted/50 transition-colors"
@@ -344,6 +352,35 @@ export default function FinalizedPage() {
                     ))}
                   </TableBody>
                 </Table>
+              </div>
+            )}
+            {filtered.length > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t p-3">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span>Itens por página:</span>
+                  <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                    <SelectTrigger className="h-8 w-[72px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[10, 25, 50, 100].map(n => (
+                        <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <span className="ml-2">
+                    {(page - 1) * pageSize + 1}–{Math.min(page * pageSize, filtered.length)} de {filtered.length}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="outline" size="sm" className="h-8" disabled={page === 1} onClick={() => setPage(1)}>«</Button>
+                  <Button variant="outline" size="sm" className="h-8" disabled={page === 1} onClick={() => setPage(p => Math.max(1, p - 1))}>‹</Button>
+                  <span className="px-2 text-xs font-medium text-foreground">
+                    Página {page} de {totalPages}
+                  </span>
+                  <Button variant="outline" size="sm" className="h-8" disabled={page === totalPages} onClick={() => setPage(p => Math.min(totalPages, p + 1))}>›</Button>
+                  <Button variant="outline" size="sm" className="h-8" disabled={page === totalPages} onClick={() => setPage(totalPages)}>»</Button>
+                </div>
               </div>
             )}
           </CardContent>
