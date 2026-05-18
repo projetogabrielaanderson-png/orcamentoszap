@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
-import { CheckCircle, Loader2, ArrowRight, ArrowLeft, Send, Shield, ShieldCheck, User, Phone, MessageSquare, CalendarDays, FileCheck, Check, ClipboardList } from 'lucide-react';
+import { CheckCircle, Loader2, ArrowRight, ArrowLeft, Send, Shield, ShieldCheck, User, Phone, MessageSquare, CalendarDays, FileCheck, Check, ClipboardList, Sunrise, Sun, Moon, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface CustomField {
@@ -696,29 +696,53 @@ const LeadFormPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Período</label>
-                    <div className="grid grid-cols-2 gap-2.5">
+                    <label className="block text-base font-bold text-gray-900 mb-1">Período</label>
+                    <p className="text-sm text-gray-500 mb-3">Selecione o período do dia que você prefere.</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {[
-                        { label: 'Manhã', emoji: '🌅' },
-                        { label: 'Tarde', emoji: '☀️' },
-                        { label: 'Noite', emoji: '🌙' },
-                        { label: 'Qualquer', emoji: '📅' },
-                      ].map((period) => (
-                        <button
-                          key={period.label}
-                          type="button"
-                          onClick={() => setValues(prev => ({ ...prev, schedule_period: period.label }))}
-                          className="flex items-center justify-center gap-2 rounded-2xl border-2 p-4 text-base font-medium transition-all duration-200 hover:shadow-md active:scale-[0.98]"
-                          style={{
-                            borderColor: values.schedule_period === period.label ? primaryColor : '#e5e7eb',
-                            backgroundColor: values.schedule_period === period.label ? `${primaryColor}10` : 'white',
-                            color: values.schedule_period === period.label ? primaryColor : '#374151',
-                          }}
-                        >
-                          <span className="text-xl">{period.emoji}</span>
-                          {period.label}
-                        </button>
-                      ))}
+                        {
+                          label: 'Manhã',
+                          time: '06h – 12h',
+                          icon: <Sunrise className="h-7 w-7" strokeWidth={2} style={{ color: '#f59e0b' }} fill="#fcd34d" />,
+                        },
+                        {
+                          label: 'Tarde',
+                          time: '12h – 18h',
+                          icon: <Sun className="h-7 w-7" strokeWidth={2} style={{ color: '#f59e0b' }} fill="#fde047" />,
+                        },
+                        {
+                          label: 'Noite',
+                          time: '18h – 22h',
+                          icon: <Moon className="h-7 w-7" strokeWidth={2} style={{ color: '#eab308' }} fill="#fde047" />,
+                        },
+                        {
+                          label: 'Qualquer',
+                          time: 'Qualquer horário',
+                          icon: (
+                            <div className="relative flex h-9 w-9 items-center justify-center rounded-full" style={{ background: 'linear-gradient(135deg,#60a5fa,#3b82f6)' }}>
+                              <Sparkles className="h-4 w-4 text-white" />
+                            </div>
+                          ),
+                        },
+                      ].map((period) => {
+                        const active = values.schedule_period === period.label;
+                        return (
+                          <button
+                            key={period.label}
+                            type="button"
+                            onClick={() => setValues(prev => ({ ...prev, schedule_period: period.label }))}
+                            className="flex flex-col items-center justify-center gap-2 rounded-2xl border-2 px-3 py-5 text-center transition-all duration-200 hover:shadow-md active:scale-[0.98]"
+                            style={{
+                              borderColor: active ? primaryColor : '#e5e7eb',
+                              backgroundColor: active ? `${primaryColor}0D` : 'white',
+                            }}
+                          >
+                            <div className="flex h-10 items-center justify-center">{period.icon}</div>
+                            <span className="text-sm font-bold" style={{ color: active ? primaryColor : '#111827' }}>{period.label}</span>
+                            <span className="text-xs text-gray-500">{period.time}</span>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-700">
