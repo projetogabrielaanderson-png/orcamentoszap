@@ -39,7 +39,7 @@ security definer
 set search_path = public
 as $$
 declare
-  edge_url text := 'https://hzzlhgfyingaphnakktg.supabase.co/functions/v1/push-send';
+  edge_url text := 'https://jiqeduvblakgiklgpuyt.supabase.co/functions/v1/push-send';
   service_key text;
 begin
   -- Tenta obter o anon key (basta para invocar; a função usa service role internamente)

@@ -71,11 +71,11 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 .wok .go img{width:20px;height:20px;object-fit:contain}
 
 </style>
-<button class="wb" id="wB"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt="WhatsApp"></button>
+<button class="wb" id="wB"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"></button>
 <div class="wo" id="wO">
 <div class="wm">
 <div class="wh">
-<div class="wav"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt=""></div>
+<div class="wav"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt=""></div>
 <div><h2>${config.title}</h2><p class="st">Online agora</p></div>
 <button class="wx" id="wX">&times;</button>
 </div>
@@ -85,15 +85,15 @@ function generateWhatsAppWidgetHTML(config: FormConfig, whatsappNumber: string, 
 <div><label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>Mensagem</label><textarea id="wg" placeholder="Descreva o que precisa..."></textarea></div>
 <label class="wk"><input type="checkbox" id="wa"><span>Li e aceito a <a href="${siteUrl}/privacidade" target="_blank">Política de Privacidade</a> e os <a href="${siteUrl}/termos" target="_blank">Termos de Uso</a></span></label>
 <div class="we big" id="ea">⚠️ Você precisa aceitar os termos</div>
-<button type="submit" class="ws" id="wS"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt=""> Iniciar Conversa</button>
+<button type="submit" class="ws" id="wS"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt=""> Iniciar Conversa</button>
 <div class="wsc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Seus dados estão protegidos</div>
 </form>
 <div class="wok" id="wOk">
 <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
 <h3>Mensagem enviada!</h3>
-<p>Você será redirecionado para o WhatsApp em <span class="cd" id="wCd">5</span> segundos</p>
+<p>Você será redirecionado para o WhatsApp in <span class="cd" id="wCd">5</span> segundos</p>
 <div class="bar"><div id="wBr"></div></div>
-<button class="go" id="wGo"><img src="https://hzzlhgfyingaphnakktg.supabase.co/storage/v1/object/public/assets/iconzap.webp" alt=""> Ir agora para o WhatsApp</button>
+<button class="go" id="wGo"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt=""> Ir agora para o WhatsApp</button>
 </div>
 </div>
 </div>

@@ -100,7 +100,8 @@ CREATE POLICY "Authenticated users can update categories" ON public.categories
   FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
 
 -- The anon insert on leads is intentional for external lead capture forms
--- No changes needed thereCREATE TABLE public.message_templates (
+-- No changes needed there
+CREATE TABLE public.message_templates (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id UUID NOT NULL,
   name TEXT NOT NULL,
